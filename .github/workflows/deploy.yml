@@ -21,9 +21,10 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           mkdir -p ~/.ssh
-          printf '%s' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p 22 green.thinline.cz >> ~/.ssh/known_hosts
+          ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null && echo "Key is valid" || echo "Key is INVALID"
+          ssh-keyscan -p 22 green.thinline.cz >> ~/.ssh/known_hosts 2>/dev/null
           chmod 600 ~/.ssh/known_hosts
           git remote add hosting "ssh://besix_cz__git@green.thinline.cz/~/besix.cz"
           git config --global user.email "github-actions@github.com"
