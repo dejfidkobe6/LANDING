@@ -26,4 +26,5 @@ jobs:
           git remote add hosting "ssh://besix_cz__git@green.thinline.cz/~/besix.cz"
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
-          GIT_SSH_COMMAND="sshpass -p '$GIT_PASSWORD' ssh" git push hosting main --force
+          export SSHPASS="$GIT_PASSWORD"
+          GIT_SSH_COMMAND="sshpass -e ssh -o StrictHostKeyChecking=no" git push hosting main --force
