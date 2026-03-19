@@ -13,20 +13,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Setup SSH key and push to hosting Git
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null && echo "Key is valid" || echo "Key is INVALID"
-          ssh-keyscan -p 22 green.thinline.cz >> ~/.ssh/known_hosts 2>/dev/null
-          chmod 600 ~/.ssh/known_hosts
-          git remote add hosting "ssh://besix_cz__git@green.thinline.cz/~/besix.cz"
-          git config --global user.email "github-actions@github.com"
-          git config --global user.name "GitHub Actions"
-          GIT_SSH_COMMAND="ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" git push hosting main --force
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: www.besix.cz
+          username: besix_cz
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /
