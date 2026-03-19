@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -20,7 +20,10 @@ jobs:
           GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
         run: |
           sudo apt-get install -y sshpass
+          mkdir -p ~/.ssh
+          ssh-keyscan -p 22 green.thinline.cz >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
           git remote add hosting "ssh://besix_cz__git@green.thinline.cz/~/besix.cz"
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
-          sshpass -p "$GIT_PASSWORD" git push hosting main --force
+          GIT_SSH_COMMAND="sshpass -p '$GIT_PASSWORD' ssh" git push hosting main --force
