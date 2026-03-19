@@ -20,4 +20,4 @@ jobs:
           server: green.thinline.cz
           username: besix_cz
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /
+          server-dir: /besix.cz/
