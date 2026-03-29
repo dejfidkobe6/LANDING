@@ -94,9 +94,10 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 
 /* ── CARDS ── */
 .cards {
-  display:grid; grid-template-columns:repeat(3,1fr); gap:16px;
-  width:100%; max-width:960px;
+  display:grid; grid-template-columns:repeat(4,1fr); gap:16px;
+  width:100%; max-width:1280px;
 }
+@media(max-width:960px){ .cards{grid-template-columns:repeat(2,1fr);} }
 @media(max-width:720px){ .cards{grid-template-columns:1fr;} .logo-img{width:180px;height:180px;} .logo-img-wrap{width:200px;height:200px;} .logo-name{font-size:0.75rem;} }
 
 .card {
@@ -113,6 +114,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 .card:nth-child(1){animation-delay:0.55s}
 .card:nth-child(2){animation-delay:0.7s}
 .card:nth-child(3){animation-delay:0.85s}
+.card:nth-child(4){animation-delay:1s}
 
 .card::before {
   content:''; position:absolute; inset:0;
@@ -236,9 +238,19 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
       <div class="card-link">Vstoupit <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
     </a>
 
-    <a class="card" href="https://dokumenty.besix.cz">
+    <a class="card" href="https://time.besix.cz">
       <div class="cut"></div><div class="scan"></div>
       <div class="card-num">03</div>
+      <div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div class="card-label">Modul · 03</div>
+      <div class="card-name" style="color:#fff;">BeSix Time</div>
+      <div class="card-desc">Evidence pracovní doby, přehled odpracovaných hodin a výkazy pro celý stavební tým.</div>
+      <div class="card-link">Vstoupit <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+    </a>
+
+    <a class="card" href="https://dokumenty.besix.cz">
+      <div class="cut"></div><div class="scan"></div>
+      <div class="card-num">04</div>
       <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg></div>
       <div class="card-label">Modul · 03</div>
       <div class="card-name">Dokumenty</div>
