@@ -199,23 +199,74 @@ function sendEmail(string $to, string $toName, string $subject, string $html): v
 }
 
 function emailTemplate(string $title, string $body): string {
-    return "
-    <div style='font-family:\"Exo 2\",sans-serif;max-width:480px;margin:0 auto;
-                background:#353c2e;padding:40px 36px;border-radius:14px;color:#fff;'>
-      <div style='text-align:center;margin-bottom:28px;'>
-        <span style='font-family:Rajdhani,sans-serif;font-size:1.6rem;font-weight:700;
-                     letter-spacing:.18em;color:#c9a84c;'>BESIX</span>
-        <div style='font-size:.6rem;letter-spacing:.4em;color:rgba(255,255,255,.4);
-                    text-transform:uppercase;margin-top:4px;'>Platform</div>
-      </div>
-      <h2 style='color:#c9a84c;font-family:Rajdhani,sans-serif;letter-spacing:.1em;
-                 margin:0 0 18px;'>$title</h2>
-      $body
-      <hr style='border:none;border-top:1px solid rgba(255,255,255,.1);margin:28px 0;'>
-      <p style='font-size:.72rem;color:rgba(255,255,255,.3);margin:0;'>
-        © 2025 BeSix s.r.o. · Digitalizace stavebnictví
-      </p>
-    </div>";
+    return "<!DOCTYPE html>
+<html lang='cs'>
+<head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
+<title>$title</title></head>
+<body style='margin:0;padding:0;background:#2a3026;font-family:Arial,sans-serif;'>
+<table width='100%' cellpadding='0' cellspacing='0' style='background:#2a3026;padding:40px 16px;'>
+<tr><td align='center'>
+<table width='520' cellpadding='0' cellspacing='0' style='max-width:520px;width:100%;'>
+
+  <!-- top border gold line -->
+  <tr><td style='background:linear-gradient(90deg,transparent,#c9a84c,transparent);height:1px;font-size:0;line-height:0;'>&nbsp;</td></tr>
+
+  <!-- main card -->
+  <tr><td style='background:#353c2e;border:1px solid rgba(255,255,255,0.1);border-top:none;padding:0;'>
+
+    <!-- header -->
+    <table width='100%' cellpadding='0' cellspacing='0'>
+      <tr><td style='padding:36px 40px 28px;border-bottom:1px solid rgba(255,255,255,0.08);'>
+        <table cellpadding='0' cellspacing='0'>
+          <tr>
+            <td style='padding-right:14px;vertical-align:middle;'>
+              <!-- BeSix asterisk symbol in gold -->
+              <div style='width:42px;height:42px;background:#4a5340;border:1px solid rgba(201,168,76,0.4);
+                          display:inline-block;text-align:center;line-height:42px;font-size:22px;color:#c9a84c;'>✦</div>
+            </td>
+            <td style='vertical-align:middle;'>
+              <div style='font-family:Georgia,serif;font-size:22px;font-weight:bold;
+                          letter-spacing:4px;color:#c9a84c;line-height:1;'>BESIX</div>
+              <div style='font-size:9px;letter-spacing:5px;color:rgba(255,255,255,0.35);
+                          text-transform:uppercase;margin-top:4px;'>PLATFORM</div>
+            </td>
+          </tr>
+        </table>
+      </td></tr>
+
+      <!-- title bar -->
+      <tr><td style='padding:22px 40px 0;'>
+        <div style='font-size:9px;letter-spacing:4px;text-transform:uppercase;
+                    color:rgba(201,168,76,0.6);margin-bottom:8px;'>$title</div>
+        <div style='width:32px;height:1px;background:#c9a84c;opacity:0.5;'></div>
+      </td></tr>
+
+      <!-- body content -->
+      <tr><td style='padding:24px 40px 36px;'>$body</td></tr>
+
+      <!-- footer -->
+      <tr><td style='padding:20px 40px;border-top:1px solid rgba(255,255,255,0.07);
+                     background:rgba(0,0,0,0.15);'>
+        <table width='100%' cellpadding='0' cellspacing='0'>
+          <tr>
+            <td style='font-size:10px;letter-spacing:1px;color:rgba(255,255,255,0.2);'>
+              © 2025 BeSix s.r.o.
+            </td>
+            <td align='right' style='font-size:10px;letter-spacing:1px;color:rgba(201,168,76,0.35);'>
+              Digitalizace stavebnictví
+            </td>
+          </tr>
+        </table>
+      </td></tr>
+    </table>
+
+  </td></tr>
+  <!-- bottom border gold line -->
+  <tr><td style='background:linear-gradient(90deg,transparent,#c9a84c,transparent);height:1px;font-size:0;line-height:0;'>&nbsp;</td></tr>
+
+</table>
+</td></tr></table>
+</body></html>";
 }
 
 // ── ROUTER ────────────────────────────────────────────────────────────
@@ -566,19 +617,44 @@ function handleInvite(): never {
     )->execute([$email, $invBy]);
 
     $link = rtrim(env('APP_URL'), '/');
-    $html = emailTemplate('Pozvánka do BeSix Platform', "
-        <p style='margin:0 0 16px;color:rgba(255,255,255,.8);line-height:1.6;'>
-            Byli jste pozván/a do platformy <strong style='color:#c9a84c;'>BeSix</strong> —
-            digitálních nástrojů stavebního týmu.
+    $html = emailTemplate('Pozvánka do platformy', "
+        <p style='margin:0 0 8px;font-size:22px;font-weight:bold;letter-spacing:2px;
+                  color:#ffffff;font-family:Georgia,serif;'>Byli jste pozváni</p>
+        <p style='margin:0 0 24px;font-size:13px;letter-spacing:1px;color:rgba(201,168,76,0.8);
+                  text-transform:uppercase;'>do BeSix Platform</p>
+
+        <table width='100%' cellpadding='0' cellspacing='0' style='margin:0 0 28px;'>
+          <tr>
+            <td style='background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);
+                       border-left:3px solid #c9a84c;padding:16px 20px;'>
+              <div style='font-size:10px;letter-spacing:3px;text-transform:uppercase;
+                          color:rgba(201,168,76,0.6);margin-bottom:6px;'>Digitální nástroje</div>
+              <div style='font-size:14px;color:rgba(255,255,255,0.8);line-height:1.6;'>
+                Board &nbsp;·&nbsp; Plans &nbsp;·&nbsp; Time &nbsp;·&nbsp; Organs &nbsp;·&nbsp; CAD
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <p style='margin:0 0 28px;font-size:13px;color:rgba(255,255,255,0.55);line-height:1.7;'>
+          Pro přístup k platformě vytvořte svůj účet kliknutím na tlačítko níže.
+          Odkaz je platný bez časového omezení.
         </p>
-        <p style='margin:0 0 28px;color:rgba(255,255,255,.65);line-height:1.6;'>
-            Pro registraci klikněte na tlačítko níže a vytvořte si účet.
+
+        <table cellpadding='0' cellspacing='0'>
+          <tr>
+            <td style='background:#4a5340;border:1px solid rgba(201,168,76,0.5);'>
+              <a href='{$link}' style='display:inline-block;padding:14px 36px;
+                  color:#c9a84c;font-size:11px;font-weight:bold;
+                  letter-spacing:4px;text-transform:uppercase;
+                  text-decoration:none;'>VYTVOŘIT ÚČET</a>
+            </td>
+          </tr>
+        </table>
+
+        <p style='margin:24px 0 0;font-size:11px;color:rgba(255,255,255,0.2);line-height:1.5;'>
+          Pokud tuto pozvánku neočekáváte, ignorujte tento e-mail.
         </p>
-        <a href='{$link}' style='display:inline-block;padding:13px 32px;
-            background:#4A5340;border:1px solid rgba(201,168,76,.5);border-radius:8px;
-            color:#c9a84c;font-family:Rajdhani,sans-serif;font-size:1rem;
-            font-weight:600;letter-spacing:.15em;text-transform:uppercase;
-            text-decoration:none;'>Registrovat se</a>
     ");
 
     sendEmail($email, $email, 'Pozvánka do BeSix Platform', $html);
