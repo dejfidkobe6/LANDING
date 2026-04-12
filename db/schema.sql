@@ -19,3 +19,14 @@ CREATE TABLE IF NOT EXISTS `users` (
   KEY `idx_verification`    (`verification_token`),
   KEY `idx_reset`           (`reset_token`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `app_access` (
+  `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id`    INT UNSIGNED NOT NULL,
+  `app`        VARCHAR(20)  NOT NULL,
+  `role`       VARCHAR(20)  NOT NULL DEFAULT 'clen',
+  `granted_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_user_app` (`user_id`, `app`),
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

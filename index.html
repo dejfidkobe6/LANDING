@@ -230,6 +230,64 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 }
 .user-logout:hover { border-color:rgba(255,255,255,.5); color:rgba(255,255,255,.8); }
 
+/* ── MEMBERS PANEL ── */
+.members-panel {
+  display:none; width:100%; max-width:1280px; margin-bottom:24px;
+  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18);
+  border-radius:16px; backdrop-filter:blur(6px); overflow:hidden;
+  animation:fadeDown 0.5s ease both;
+}
+.members-panel.visible { display:block; }
+.members-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 22px; border-bottom:1px solid rgba(255,255,255,0.08);
+  cursor:pointer; user-select:none;
+  transition:background 0.2s;
+}
+.members-header:hover { background:rgba(255,255,255,0.04); }
+.members-title {
+  font-family:'Rajdhani',sans-serif; font-size:0.72rem; font-weight:600;
+  letter-spacing:0.25em; text-transform:uppercase; color:var(--gold);
+  display:flex; align-items:center; gap:8px;
+}
+.members-title svg { width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.members-chevron { color:rgba(255,255,255,0.35); font-size:0.65rem; transition:transform 0.3s; }
+.members-panel.open .members-chevron { transform:rotate(180deg); }
+.members-body { display:none; overflow-x:auto; }
+.members-panel.open .members-body { display:block; }
+.members-table { width:100%; border-collapse:collapse; font-size:0.8rem; }
+.members-table th {
+  padding:10px 18px; text-align:left;
+  font-family:'Rajdhani',sans-serif; font-size:0.6rem; letter-spacing:0.2em;
+  text-transform:uppercase; color:var(--gold); opacity:0.7;
+  border-bottom:1px solid rgba(255,255,255,0.1); white-space:nowrap;
+}
+.members-table td {
+  padding:10px 18px; color:rgba(255,255,255,0.75);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  white-space:nowrap;
+}
+.members-table tr:last-child td { border-bottom:none; }
+.member-av {
+  width:26px; height:26px; border-radius:50%; display:inline-flex;
+  align-items:center; justify-content:center;
+  font-family:'Rajdhani',sans-serif; font-size:0.72rem; font-weight:700;
+  color:#fff; vertical-align:middle; margin-right:8px; flex-shrink:0;
+}
+.member-name { font-family:'Rajdhani',sans-serif; font-size:0.85rem; letter-spacing:0.05em; vertical-align:middle; }
+.member-email { font-size:0.7rem; color:rgba(255,255,255,0.38); }
+.role-sel {
+  background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.14);
+  border-radius:6px; padding:4px 8px;
+  color:rgba(255,255,255,0.65); font-family:'Exo 2',sans-serif; font-size:0.72rem;
+  cursor:pointer; outline:none; min-width:86px; transition:border-color 0.2s;
+}
+.role-sel:focus { border-color:rgba(201,168,76,0.5); }
+.role-sel option { background:#3e4836; color:#fff; }
+.role-sel[data-role="admin"]  { color:var(--gold); border-color:rgba(201,168,76,0.4); }
+.role-sel[data-role="clen"]   { color:rgba(180,220,180,0.85); }
+.role-sel[data-role="host"]   { color:rgba(255,255,255,0.5); }
+
 /* ── CARDS ── */
 .cards {
   display:grid; grid-template-columns:repeat(4,1fr); gap:16px;
@@ -371,6 +429,34 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
     <div class="user-avatar" id="user-avatar"></div>
     <span class="user-name" id="user-name-label"></span>
     <button class="user-logout" onclick="doLogout()">Odhlásit se</button>
+  </div>
+
+  <div class="members-panel" id="members-panel">
+    <div class="members-header" onclick="toggleMembers()">
+      <span class="members-title">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Správa členů
+      </span>
+      <span class="members-chevron">▼</span>
+    </div>
+    <div class="members-body">
+      <table class="members-table">
+        <thead>
+          <tr>
+            <th>Člen</th>
+            <th>E-mail</th>
+            <th>Board</th>
+            <th>Plans</th>
+            <th>Time</th>
+            <th>Organs</th>
+            <th>CAD</th>
+          </tr>
+        </thead>
+        <tbody id="members-tbody">
+          <tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.3);padding:20px 0;">Načítám…</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <div class="cards">
@@ -641,10 +727,73 @@ function setUser(user){
   const av = document.getElementById('user-avatar');
   av.style.background = user.avatar_color || '#4A5340';
   av.textContent = user.name.trim()[0].toUpperCase();
+  showMembersPanel();
 }
 function clearUser(){
   document.getElementById('auth-trigger-btn').style.display = '';
   document.getElementById('user-pill').classList.remove('visible');
+  hideMembersPanel();
+}
+
+// ── MEMBERS ──────────────────────────────────────────────────────────
+const APPS = ['board','plans','time','organs','cad'];
+
+function showMembersPanel(){
+  document.getElementById('members-panel').classList.add('visible');
+  loadMembers();
+}
+function hideMembersPanel(){
+  const p = document.getElementById('members-panel');
+  p.classList.remove('visible','open');
+}
+function toggleMembers(){
+  const p = document.getElementById('members-panel');
+  const opening = !p.classList.contains('open');
+  p.classList.toggle('open');
+  if(opening) loadMembers();
+}
+async function loadMembers(){
+  try {
+    const r = await fetch(API+'members', {credentials:'include'});
+    if(!r.ok) return;
+    const d = await r.json();
+    renderMembers(d.members);
+  } catch(_){}
+}
+function renderMembers(members){
+  const tb = document.getElementById('members-tbody');
+  if(!members || !members.length){
+    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.3);padding:20px 0;">Žádní členové</td></tr>';
+    return;
+  }
+  tb.innerHTML = members.map(m => {
+    const init = m.name.trim()[0].toUpperCase();
+    const appcells = APPS.map(app => {
+      const role = (m.apps && m.apps[app]) ? m.apps[app] : 'none';
+      return `<td><select class="role-sel" data-role="${role}"
+        onchange="setAccess(${m.id},'${app}',this.value);this.dataset.role=this.value">
+        <option value="none"${role==='none'?' selected':''}>—</option>
+        <option value="host"${role==='host'?' selected':''}>Host</option>
+        <option value="clen"${role==='clen'?' selected':''}>Člen</option>
+        <option value="admin"${role==='admin'?' selected':''}>Admin</option>
+      </select></td>`;
+    }).join('');
+    return `<tr>
+      <td><span class="member-av" style="background:${m.avatar_color||'#4A5340'}">${init}</span><span class="member-name">${esc(m.name)}</span></td>
+      <td><span class="member-email">${esc(m.email)}</span></td>
+      ${appcells}
+    </tr>`;
+  }).join('');
+}
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+async function setAccess(uid, app, role){
+  try {
+    await fetch(API+'set_access',{
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({user_id:uid, app, role})
+    });
+  } catch(_){}
 }
 
 // ── LOGIN ────────────────────────────────────────────────────────────

@@ -130,6 +130,8 @@ match ($action) {
     'reset'           => handleReset(),
     'google_redirect' => handleGoogleRedirect(),
     'google_callback' => handleGoogleCallback(),
+    'members'         => handleMembers(),
+    'set_access'      => handleSetAccess(),
     default           => json_out(['error' => 'Neznámá akce'], 404),
 };
 
@@ -392,4 +394,58 @@ function handleGoogleCallback(): never {
 
     header("Location: $appUrl?auth=success");
     exit;
+}
+
+// ── MEMBERS ───────────────────────────────────────────────────────────
+function handleMembers(): never {
+    requireAuth();
+    $users = db()->query(
+        'SELECT id, name, email, avatar_color FROM users ORDER BY created_at ASC'
+    )->fetchAll();
+    $rows = db()->query('SELECT user_id, app, role FROM app_access')->fetchAll();
+
+    $map = [];
+    foreach ($rows as $r) {
+        $map[$r['user_id']][$r['app']] = $r['role'];
+    }
+
+    $members = [];
+    foreach ($users as $u) {
+        $members[] = [
+            'id'           => (int)$u['id'],
+            'name'         => $u['name'],
+            'email'        => $u['email'],
+            'avatar_color' => $u['avatar_color'],
+            'apps'         => $map[$u['id']] ?? (object)[],
+        ];
+    }
+    json_out(['members' => $members]);
+}
+
+function handleSetAccess(): never {
+    requireAuth();
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') json_out(['error' => 'POST required'], 405);
+    $b       = body();
+    $uid     = (int)($b['user_id'] ?? 0);
+    $app     = $b['app']  ?? '';
+    $role    = $b['role'] ?? '';
+    $validApps  = ['board', 'plans', 'time', 'organs', 'cad'];
+    $validRoles = ['host', 'clen', 'admin'];
+
+    if (!$uid || !in_array($app, $validApps, true)) json_out(['error' => 'Neplatné parametry'], 422);
+
+    $st = db()->prepare('SELECT id FROM users WHERE id = ?');
+    $st->execute([$uid]);
+    if (!$st->fetch()) json_out(['error' => 'Uživatel nenalezen'], 404);
+
+    if (!$role || $role === 'none') {
+        db()->prepare('DELETE FROM app_access WHERE user_id = ? AND app = ?')->execute([$uid, $app]);
+    } else {
+        if (!in_array($role, $validRoles, true)) json_out(['error' => 'Neplatná role'], 422);
+        db()->prepare(
+            'INSERT INTO app_access (user_id, app, role) VALUES (?, ?, ?)
+             ON DUPLICATE KEY UPDATE role = VALUES(role)'
+        )->execute([$uid, $app, $role]);
+    }
+    json_out(['success' => true]);
 }
