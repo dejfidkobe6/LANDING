@@ -616,7 +616,7 @@ function handleInvite(): never {
          ON DUPLICATE KEY UPDATE sent_at = NOW(), invited_by = VALUES(invited_by)'
     )->execute([$email, $invBy]);
 
-    $link = rtrim(env('APP_URL'), '/');
+    $link = rtrim(env('APP_URL'), '/') . '/?register=1';
     $html = emailTemplate('Pozvánka do platformy', "
         <p style='margin:0 0 8px;font-size:22px;font-weight:bold;letter-spacing:2px;
                   color:#ffffff;font-family:Georgia,serif;'>Byli jste pozváni</p>

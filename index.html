@@ -1018,9 +1018,20 @@ async function submitForgot(){
 // ── RESET PASSWORD (z URL ?reset_token=...) ──────────────────────────
 function checkResetToken(){
   const params = new URLSearchParams(location.search);
-  const token  = params.get('reset_token');
+  const token    = params.get('reset_token');
   const verified = params.get('verified');
   const authRes  = params.get('auth');
+  const doReg    = params.get('register');
+  if(doReg === '1'){
+    history.replaceState({}, '', location.pathname);
+    openAuth();
+    // Switch to register tab
+    const tabs = document.querySelectorAll('.auth-tab');
+    tabs.forEach(t => t.classList.remove('active'));
+    if(tabs[1]) tabs[1].classList.add('active');
+    document.getElementById('form-login').classList.add('hidden');
+    document.getElementById('form-register').classList.remove('hidden');
+  }
   if(token){
     history.replaceState({}, '', location.pathname);
     openAuth();
