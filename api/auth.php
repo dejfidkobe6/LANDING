@@ -103,6 +103,15 @@ function migrate(PDO $pdo): void {
         try { $pdo->exec($sql); } catch (PDOException $e) { /* table exists or hosting limitation */ }
     }
 
+    // Add is_admin to users if missing, set first user as admin
+    try {
+        $userCols = array_column($pdo->query("SHOW COLUMNS FROM `users`")->fetchAll(), 'Field');
+        if (!in_array('is_admin', $userCols)) {
+            $pdo->exec("ALTER TABLE `users` ADD COLUMN `is_admin` TINYINT(1) NOT NULL DEFAULT 0 AFTER `is_verified`");
+            $pdo->exec("UPDATE `users` SET `is_admin` = 1 ORDER BY `id` ASC LIMIT 1");
+        }
+    } catch (PDOException $e) {}
+
     // Repair invitations table — add missing columns if table was created partially
     try {
         $existing = [];
@@ -130,7 +139,7 @@ function migrate(PDO $pdo): void {
             catch (PDOException $e) { /* still duplicates, skip */ }
         }
         // Always clean up garbage rows from broken migration
-        $pdo->exec("DELETE FROM `invitations` WHERE `email` = ''");
+        $pdo->exec("DELETE FROM `invitations` WHERE `email` = ''"  );
 
         // Fix any columns without default values that we don't manage
         $cols = $pdo->query("SHOW COLUMNS FROM `invitations`")->fetchAll();
@@ -163,7 +172,7 @@ function body(): array {
 
 function requireAuth(): array {
     if (empty($_SESSION['user_id'])) json_out(['error' => 'Nepřihlášen'], 401);
-    $st = db()->prepare('SELECT id, name, email, avatar_color, is_verified FROM users WHERE id = ?');
+    $st = db()->prepare('SELECT id, name, email, avatar_color, is_verified, is_admin FROM users WHERE id = ?');
     $st->execute([$_SESSION['user_id']]);
     $user = $st->fetch();
     if (!$user) { session_destroy(); json_out(['error' => 'Uživatel nenalezen'], 401); }
@@ -231,6 +240,7 @@ match ($action) {
     'members'         => handleMembers(),
     'invitations'     => handleInvitations(),
     'invite'          => handleInvite(),
+    'delete_member'   => handleDeleteMember(),
     default           => json_out(['error' => 'Neznámá akce'], 404),
 };
 
@@ -336,7 +346,7 @@ function handleLogout(): never {
 
 function handleMe(): never {
     $user = requireAuth();
-    json_out(['user' => $user]);
+    json_out(['user' => array_merge($user, ['is_admin' => (bool)$user['is_admin']])]);
 }
 
 function handleForgot(): never {
@@ -499,7 +509,7 @@ function handleGoogleCallback(): never {
 function handleMembers(): never {
     requireAuth();
     $rows = db()->query(
-        'SELECT id, name, email, avatar_color, is_verified, created_at FROM users ORDER BY created_at ASC'
+        'SELECT id, name, email, avatar_color, is_verified, is_admin, created_at FROM users ORDER BY created_at ASC'
     )->fetchAll();
 
     $members = [];
@@ -510,6 +520,7 @@ function handleMembers(): never {
             'email'        => $u['email'],
             'avatar_color' => $u['avatar_color'],
             'is_verified'  => (bool)$u['is_verified'],
+            'is_admin'     => (bool)$u['is_admin'],
             'created_at'   => substr($u['created_at'], 0, 10),
         ];
     }
@@ -578,4 +589,15 @@ function handleInvite(): never {
 
     sendEmail($email, $email, 'Pozvánka do BeSix Platform', $html);
     json_out(['success' => true, 'message' => 'Pozvánka odeslána na ' . $email]);
+}
+
+function handleDeleteMember(): never {
+    $me = requireAuth();
+    if (empty($me['is_admin'])) json_out(['error' => 'Nedostatečná oprávnění'], 403);
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') json_out(['error' => 'POST required'], 405);
+    $uid = (int)(body()['user_id'] ?? 0);
+    if (!$uid)                json_out(['error' => 'Chybí user_id'], 422);
+    if ($uid === (int)$me['id']) json_out(['error' => 'Nelze smazat vlastní účet'], 400);
+    db()->prepare('DELETE FROM users WHERE id = ?')->execute([$uid]);
+    json_out(['success' => true]);
 }
