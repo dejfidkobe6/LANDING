@@ -484,15 +484,20 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
     </div>
     <div class="invite-bar" id="invite-bar">
       <div>
-        <label>Jméno</label>
-        <input id="inv-name" type="text" placeholder="Jan Novák">
-      </div>
-      <div>
         <label>E-mail</label>
         <input id="inv-email" type="email" placeholder="jan@firma.cz">
       </div>
       <button class="invite-btn" id="inv-btn" onclick="sendInvite()">Odeslat pozvánku</button>
       <span id="inv-msg" class="invite-msg" style="display:none"></span>
+    </div>
+    <div class="inv-list-wrap" id="inv-list-wrap" style="display:none">
+      <div style="padding:10px 22px 6px;font-family:'Rajdhani',sans-serif;font-size:0.6rem;
+                  letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);opacity:0.6;
+                  border-top:1px solid rgba(255,255,255,0.07);">Odeslané pozvánky</div>
+      <table class="members-table" id="inv-table">
+        <thead><tr><th>E-mail</th><th>Odesláno</th><th>Stav</th><th>Přijato</th></tr></thead>
+        <tbody id="inv-tbody"></tbody>
+      </table>
     </div>
   </div>
 
@@ -782,7 +787,7 @@ function hideMembersPanel(){
 function toggleMembers(){
   const p = document.getElementById('members-panel');
   p.classList.toggle('open');
-  if(p.classList.contains('open')) loadMembers();
+  if(p.classList.contains('open')){ loadMembers(); loadInvitations(); }
 }
 async function loadMembers(){
   const tb = document.getElementById('members-tbody');
@@ -818,25 +823,21 @@ function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/
 
 // ── INVITE ───────────────────────────────────────────────────────────
 async function sendInvite(){
-  const name  = document.getElementById('inv-name').value.trim();
   const email = document.getElementById('inv-email').value.trim();
-  const msg   = document.getElementById('inv-msg');
   const btn   = document.getElementById('inv-btn');
-  msg.style.display = 'none';
   if(!email){ showInvMsg('Zadej e-mail','err'); return; }
   btn.disabled = true; btn.textContent = '…';
   try {
     const r = await fetch(API+'invite',{
       method:'POST', credentials:'include',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({name, email})
+      body: JSON.stringify({email})
     });
     const d = await r.json();
     if(!r.ok) throw new Error(d.error||'Chyba');
     showInvMsg(d.message||'Pozvánka odeslána','ok');
-    document.getElementById('inv-name').value='';
     document.getElementById('inv-email').value='';
-    setTimeout(loadMembers, 500);
+    setTimeout(loadInvitations, 600);
   } catch(e){
     showInvMsg(e.message,'err');
   } finally {
@@ -848,6 +849,33 @@ function showInvMsg(text, type){
   el.textContent = text;
   el.className = 'invite-msg '+type;
   el.style.display = 'inline-block';
+}
+
+async function loadInvitations(){
+  try {
+    const r = await fetch(API+'invitations', {credentials:'include'});
+    if(!r.ok) return;
+    const d = await r.json();
+    renderInvitations(d.invitations);
+  } catch(_){}
+}
+function renderInvitations(list){
+  const wrap = document.getElementById('inv-list-wrap');
+  const tb   = document.getElementById('inv-tbody');
+  if(!list || !list.length){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  tb.innerHTML = list.map(i => {
+    const badge = i.accepted
+      ? `<span class="verified-badge yes">✓ Přijata</span>`
+      : `<span class="verified-badge no">Čeká</span>`;
+    const who = i.accepted ? `<span style="font-size:.72rem;color:rgba(255,255,255,.5);">${esc(i.user_name||'')}</span>` : '—';
+    return `<tr>
+      <td><span class="member-email">${esc(i.email)}</span></td>
+      <td style="color:rgba(255,255,255,.4);font-size:.72rem;">${i.sent_at}</td>
+      <td>${badge}</td>
+      <td>${who}</td>
+    </tr>`;
+  }).join('');
 }
 
 // ── LOGIN ────────────────────────────────────────────────────────────

@@ -20,6 +20,16 @@ CREATE TABLE IF NOT EXISTS `users` (
   KEY `idx_reset`           (`reset_token`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `invitations` (
+  `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `email`      VARCHAR(180) NOT NULL,
+  `invited_by` INT UNSIGNED NOT NULL,
+  `sent_at`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_inv_email` (`email`),
+  FOREIGN KEY (`invited_by`) REFERENCES `users`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `app_access` (
   `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id`    INT UNSIGNED NOT NULL,
