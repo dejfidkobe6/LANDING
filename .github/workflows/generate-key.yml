@@ -1,0 +1,24 @@
+name: Generate SSH Key
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate SSH key pair
+        run: |
+          ssh-keygen -t ed25519 -C "github-deploy-besix" -f deploy_key -N ""
+          echo "====== PUBLIC KEY - ADD THIS TO HOSTING ======"
+          cat deploy_key.pub
+          echo "====== PRIVATE KEY - ADD THIS TO GITHUB SECRETS AS SSH_PRIVATE_KEY ======"
+          cat deploy_key
+
+      - name: Upload keys as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssh-keys
+          path: |
+            deploy_key
+            deploy_key.pub
