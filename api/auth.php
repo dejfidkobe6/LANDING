@@ -590,8 +590,16 @@ function handleDeleteMember(): never {
     if ($me['email'] !== PLATFORM_ADMIN_EMAIL) json_out(['error' => 'Nedostatečná oprávnění'], 403);
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') json_out(['error' => 'POST required'], 405);
     $uid = (int)(body()['user_id'] ?? 0);
-    if (!$uid)                json_out(['error' => 'Chybí user_id'], 422);
+    if (!$uid)                   json_out(['error' => 'Chybí user_id'], 422);
     if ($uid === (int)$me['id']) json_out(['error' => 'Nelze smazat vlastní účet'], 400);
-    db()->prepare('DELETE FROM users WHERE id = ?')->execute([$uid]);
+
+    $pdo = db();
+    // Disable FK checks so other apps' references don't block deletion
+    $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
+    try {
+        $pdo->prepare('DELETE FROM users WHERE id = ?')->execute([$uid]);
+    } finally {
+        $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
+    }
     json_out(['success' => true]);
 }
