@@ -291,6 +291,13 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   gap:10px; align-items:flex-end; flex-wrap:wrap;
 }
 .members-panel.open .invite-bar { display:flex; }
+.del-btn {
+  background:none; border:none; cursor:pointer; padding:4px 6px;
+  color:rgba(255,100,100,0.4); font-size:1rem; line-height:1;
+  border-radius:4px; transition:color 0.2s, background 0.2s;
+}
+.del-btn:hover { color:rgba(255,80,80,0.9); background:rgba(255,60,60,0.1); }
+
 .invite-bar label {
   font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase;
   color:var(--gold); opacity:0.75; display:block; margin-bottom:5px;
@@ -475,6 +482,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
             <th>E-mail</th>
             <th>Ověřen</th>
             <th>Člen od</th>
+            <th id="th-del"></th>
           </tr>
         </thead>
         <tbody id="members-tbody">
@@ -761,14 +769,17 @@ function setLoading(btnId, loading){
 }
 
 // ── USER STATE ───────────────────────────────────────────────────────
+let _meId = 0, _isAdmin = false;
 function setUser(user){
+  _meId = user.id || 0;
+  _isAdmin = !!user.is_admin;
   document.getElementById('auth-trigger-btn').style.display = 'none';
   const pill = document.getElementById('user-pill');
   pill.classList.add('visible');
   document.getElementById('user-name-label').textContent = user.name;
   const av = document.getElementById('user-avatar');
   av.style.background = user.avatar_color || '#4A5340';
-  av.textContent = user.name.trim()[0].toUpperCase();
+  av.textContent = (user.name||'?').trim()[0].toUpperCase();
   showMembersPanel();
 }
 function clearUser(){
@@ -812,20 +823,43 @@ function renderMembers(members){
     tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,.3);padding:20px 0;">Žádní členové</td></tr>';
     return;
   }
+  // Show delete column header only for admins
+  const thDel = document.getElementById('th-del');
+  if(thDel) thDel.textContent = _isAdmin ? '' : '';
+
   tb.innerHTML = members.map(m => {
     const init = (m.name||'?').trim()[0].toUpperCase();
     const badge = m.is_verified
       ? `<span class="verified-badge yes">✓ Ověřen</span>`
       : `<span class="verified-badge no">✗ Neověřen</span>`;
+    const adminBadge = m.is_admin ? `<span style="font-size:.55rem;letter-spacing:.1em;color:var(--gold);opacity:.6;margin-left:6px;vertical-align:middle;">ADMIN</span>` : '';
+    const delBtn = (_isAdmin && m.id !== _meId)
+      ? `<button class="del-btn" onclick="deleteMember(${m.id},'${esc(m.name||m.email)}')" title="Smazat člena">✕</button>`
+      : '';
     return `<tr>
-      <td><span class="member-av" style="background:${m.avatar_color||'#4A5340'}">${init}</span><span class="member-name">${esc(m.name)}</span></td>
+      <td><span class="member-av" style="background:${m.avatar_color||'#4A5340'}">${init}</span><span class="member-name">${esc(m.name||'—')}</span>${adminBadge}</td>
       <td><span class="member-email">${esc(m.email)}</span></td>
       <td>${badge}</td>
       <td style="color:rgba(255,255,255,.4);font-size:.72rem;">${m.created_at}</td>
+      <td>${delBtn}</td>
     </tr>`;
   }).join('');
 }
-function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+async function deleteMember(uid, name){
+  if(!confirm('Smazat člena „'+name+'"? Tato akce je nevratná.')) return;
+  try {
+    const r = await fetch(API+'delete_member',{
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({user_id: uid})
+    });
+    const d = await r.json();
+    if(!r.ok) throw new Error(d.error||'Chyba');
+    loadMembers();
+  } catch(e){ alert(e.message); }
+}
 
 // ── INVITE ───────────────────────────────────────────────────────────
 async function sendInvite(){
