@@ -276,17 +276,45 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 }
 .member-name { font-family:'Rajdhani',sans-serif; font-size:0.85rem; letter-spacing:0.05em; vertical-align:middle; }
 .member-email { font-size:0.7rem; color:rgba(255,255,255,0.38); }
-.role-sel {
-  background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.14);
-  border-radius:6px; padding:4px 8px;
-  color:rgba(255,255,255,0.65); font-family:'Exo 2',sans-serif; font-size:0.72rem;
-  cursor:pointer; outline:none; min-width:86px; transition:border-color 0.2s;
+.verified-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:0.62rem; letter-spacing:0.1em;
 }
-.role-sel:focus { border-color:rgba(201,168,76,0.5); }
-.role-sel option { background:#3e4836; color:#fff; }
-.role-sel[data-role="admin"]  { color:var(--gold); border-color:rgba(201,168,76,0.4); }
-.role-sel[data-role="clen"]   { color:rgba(180,220,180,0.85); }
-.role-sel[data-role="host"]   { color:rgba(255,255,255,0.5); }
+.verified-badge.yes { color:#7bc47b; }
+.verified-badge.no  { color:rgba(255,255,255,0.3); }
+
+/* invite form */
+.invite-bar {
+  display:none; padding:14px 22px;
+  border-top:1px solid rgba(255,255,255,0.08);
+  background:rgba(0,0,0,0.15);
+  gap:10px; align-items:flex-end; flex-wrap:wrap;
+}
+.members-panel.open .invite-bar { display:flex; }
+.invite-bar label {
+  font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase;
+  color:var(--gold); opacity:0.75; display:block; margin-bottom:5px;
+}
+.invite-bar input {
+  background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.16);
+  border-radius:6px; padding:8px 12px; color:#fff;
+  font-family:'Exo 2',sans-serif; font-size:0.82rem;
+  outline:none; transition:border-color 0.2s; min-width:180px;
+}
+.invite-bar input:focus { border-color:rgba(201,168,76,0.5); }
+.invite-bar input::placeholder { color:rgba(255,255,255,0.22); }
+.invite-btn {
+  padding:9px 22px; border-radius:8px;
+  background:rgba(201,168,76,0.15); border:1px solid rgba(201,168,76,0.4);
+  color:var(--gold); font-family:'Rajdhani',sans-serif;
+  font-size:0.78rem; font-weight:600; letter-spacing:0.18em; text-transform:uppercase;
+  cursor:pointer; white-space:nowrap; transition:background 0.2s, box-shadow 0.2s;
+}
+.invite-btn:hover { background:rgba(201,168,76,0.25); box-shadow:0 0 16px rgba(201,168,76,0.2); }
+.invite-btn:disabled { opacity:0.4; cursor:not-allowed; }
+.invite-msg { font-size:0.72rem; padding:6px 10px; border-radius:6px; }
+.invite-msg.ok  { color:#90ee90; background:rgba(75,180,75,.12); border:1px solid rgba(75,180,75,.25); }
+.invite-msg.err { color:#ff9090; background:rgba(220,60,60,.12); border:1px solid rgba(220,60,60,.25); }
 
 /* ── CARDS ── */
 .cards {
@@ -445,17 +473,26 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
           <tr>
             <th>Člen</th>
             <th>E-mail</th>
-            <th>Board</th>
-            <th>Plans</th>
-            <th>Time</th>
-            <th>Organs</th>
-            <th>CAD</th>
+            <th>Ověřen</th>
+            <th>Člen od</th>
           </tr>
         </thead>
         <tbody id="members-tbody">
-          <tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.3);padding:20px 0;">Načítám…</td></tr>
+          <tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,.3);padding:20px 0;">Načítám…</td></tr>
         </tbody>
       </table>
+    </div>
+    <div class="invite-bar" id="invite-bar">
+      <div>
+        <label>Jméno</label>
+        <input id="inv-name" type="text" placeholder="Jan Novák">
+      </div>
+      <div>
+        <label>E-mail</label>
+        <input id="inv-email" type="email" placeholder="jan@firma.cz">
+      </div>
+      <button class="invite-btn" id="inv-btn" onclick="sendInvite()">Odeslat pozvánku</button>
+      <span id="inv-msg" class="invite-msg" style="display:none"></span>
     </div>
   </div>
 
@@ -736,64 +773,81 @@ function clearUser(){
 }
 
 // ── MEMBERS ──────────────────────────────────────────────────────────
-const APPS = ['board','plans','time','organs','cad'];
-
 function showMembersPanel(){
   document.getElementById('members-panel').classList.add('visible');
-  loadMembers();
 }
 function hideMembersPanel(){
-  const p = document.getElementById('members-panel');
-  p.classList.remove('visible','open');
+  document.getElementById('members-panel').classList.remove('visible','open');
 }
 function toggleMembers(){
   const p = document.getElementById('members-panel');
-  const opening = !p.classList.contains('open');
   p.classList.toggle('open');
-  if(opening) loadMembers();
+  if(p.classList.contains('open')) loadMembers();
 }
 async function loadMembers(){
+  const tb = document.getElementById('members-tbody');
   try {
     const r = await fetch(API+'members', {credentials:'include'});
-    if(!r.ok) return;
+    if(!r.ok){ tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:#ff9090;padding:16px 0;">Chyba načítání ('+r.status+')</td></tr>'; return; }
     const d = await r.json();
     renderMembers(d.members);
-  } catch(_){}
+  } catch(e){
+    tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,.3);padding:16px 0;">Chyba spojení</td></tr>';
+  }
 }
 function renderMembers(members){
   const tb = document.getElementById('members-tbody');
   if(!members || !members.length){
-    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.3);padding:20px 0;">Žádní členové</td></tr>';
+    tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,.3);padding:20px 0;">Žádní členové</td></tr>';
     return;
   }
   tb.innerHTML = members.map(m => {
     const init = m.name.trim()[0].toUpperCase();
-    const appcells = APPS.map(app => {
-      const role = (m.apps && m.apps[app]) ? m.apps[app] : 'none';
-      return `<td><select class="role-sel" data-role="${role}"
-        onchange="setAccess(${m.id},'${app}',this.value);this.dataset.role=this.value">
-        <option value="none"${role==='none'?' selected':''}>—</option>
-        <option value="host"${role==='host'?' selected':''}>Host</option>
-        <option value="clen"${role==='clen'?' selected':''}>Člen</option>
-        <option value="admin"${role==='admin'?' selected':''}>Admin</option>
-      </select></td>`;
-    }).join('');
+    const badge = m.is_verified
+      ? `<span class="verified-badge yes">✓ Ověřen</span>`
+      : `<span class="verified-badge no">✗ Neověřen</span>`;
     return `<tr>
       <td><span class="member-av" style="background:${m.avatar_color||'#4A5340'}">${init}</span><span class="member-name">${esc(m.name)}</span></td>
       <td><span class="member-email">${esc(m.email)}</span></td>
-      ${appcells}
+      <td>${badge}</td>
+      <td style="color:rgba(255,255,255,.4);font-size:.72rem;">${m.created_at}</td>
     </tr>`;
   }).join('');
 }
 function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-async function setAccess(uid, app, role){
+
+// ── INVITE ───────────────────────────────────────────────────────────
+async function sendInvite(){
+  const name  = document.getElementById('inv-name').value.trim();
+  const email = document.getElementById('inv-email').value.trim();
+  const msg   = document.getElementById('inv-msg');
+  const btn   = document.getElementById('inv-btn');
+  msg.style.display = 'none';
+  if(!email){ showInvMsg('Zadej e-mail','err'); return; }
+  btn.disabled = true; btn.textContent = '…';
   try {
-    await fetch(API+'set_access',{
+    const r = await fetch(API+'invite',{
       method:'POST', credentials:'include',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({user_id:uid, app, role})
+      body: JSON.stringify({name, email})
     });
-  } catch(_){}
+    const d = await r.json();
+    if(!r.ok) throw new Error(d.error||'Chyba');
+    showInvMsg(d.message||'Pozvánka odeslána','ok');
+    document.getElementById('inv-name').value='';
+    document.getElementById('inv-email').value='';
+    setTimeout(loadMembers, 500);
+  } catch(e){
+    showInvMsg(e.message,'err');
+  } finally {
+    btn.disabled=false; btn.textContent='Odeslat pozvánku';
+  }
+}
+function showInvMsg(text, type){
+  const el = document.getElementById('inv-msg');
+  el.textContent = text;
+  el.className = 'invite-msg '+type;
+  el.style.display = 'inline-block';
 }
 
 // ── LOGIN ────────────────────────────────────────────────────────────
