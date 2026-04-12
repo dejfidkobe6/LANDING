@@ -12,6 +12,9 @@ function env(string $key, string $default = ''): string {
     return getenv($key) ?: ($_ENV[$key] ?? $default);
 }
 
+// Jediný admin platformy — hardcoded, nedá se změnit z žádné jiné appky
+define('PLATFORM_ADMIN_EMAIL', 'david.besse46@gmail.com');
+
 // ── GLOBAL ERROR → JSON ───────────────────────────────────────────────
 set_exception_handler(function (Throwable $e) {
     if (!headers_sent()) header('Content-Type: application/json; charset=utf-8');
@@ -81,7 +84,7 @@ function migrate(PDO $pdo): void {
             KEY `idx_reset`           (`reset_token`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
-        "CREATE TABLE IF NOT EXISTS `invitations` (
+        "CREATE TABLE IF NOT EXISTS `platform_invitations` (
             `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
             `email`      VARCHAR(180) NOT NULL DEFAULT '',
             `invited_by` INT UNSIGNED NOT NULL DEFAULT 0,
@@ -103,54 +106,45 @@ function migrate(PDO $pdo): void {
         try { $pdo->exec($sql); } catch (PDOException $e) { /* table exists or hosting limitation */ }
     }
 
-    // Add is_admin to users if missing, set first user as admin
-    try {
-        $userCols = array_column($pdo->query("SHOW COLUMNS FROM `users`")->fetchAll(), 'Field');
-        if (!in_array('is_admin', $userCols)) {
-            $pdo->exec("ALTER TABLE `users` ADD COLUMN `is_admin` TINYINT(1) NOT NULL DEFAULT 0 AFTER `is_verified`");
-            $pdo->exec("UPDATE `users` SET `is_admin` = 1 ORDER BY `id` ASC LIMIT 1");
-        }
-    } catch (PDOException $e) {}
-
-    // Repair invitations table — add missing columns if table was created partially
+    // Repair platform_invitations table — add missing columns if table was created partially
     try {
         $existing = [];
-        foreach ($pdo->query("SHOW COLUMNS FROM `invitations`")->fetchAll() as $row) {
+        foreach ($pdo->query("SHOW COLUMNS FROM `platform_invitations`")->fetchAll() as $row) {
             $existing[] = $row['Field'];
         }
         if (!in_array('email', $existing)) {
-            $pdo->exec("ALTER TABLE `invitations` ADD COLUMN `email` VARCHAR(180) NOT NULL DEFAULT '' AFTER `id`");
+            $pdo->exec("ALTER TABLE `platform_invitations` ADD COLUMN `email` VARCHAR(180) NOT NULL DEFAULT '' AFTER `id`");
         }
         if (!in_array('invited_by', $existing)) {
-            $pdo->exec("ALTER TABLE `invitations` ADD COLUMN `invited_by` INT UNSIGNED NOT NULL DEFAULT 0");
+            $pdo->exec("ALTER TABLE `platform_invitations` ADD COLUMN `invited_by` INT UNSIGNED NOT NULL DEFAULT 0");
         }
         if (!in_array('sent_at', $existing)) {
-            $pdo->exec("ALTER TABLE `invitations` ADD COLUMN `sent_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP");
+            $pdo->exec("ALTER TABLE `platform_invitations` ADD COLUMN `sent_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP");
         }
         // Add unique index on email if missing
         $indexes = [];
-        foreach ($pdo->query("SHOW INDEX FROM `invitations`")->fetchAll() as $row) {
+        foreach ($pdo->query("SHOW INDEX FROM `platform_invitations`")->fetchAll() as $row) {
             $indexes[] = $row['Key_name'];
         }
         if (!in_array('uq_inv_email', $indexes)) {
             // Remove empty-email duplicates first, then add unique index
-            $pdo->exec("DELETE FROM `invitations` WHERE `email` = ''");
-            try { $pdo->exec("ALTER TABLE `invitations` ADD UNIQUE KEY `uq_inv_email` (`email`)"); }
+            $pdo->exec("DELETE FROM `platform_invitations` WHERE `email` = ''");
+            try { $pdo->exec("ALTER TABLE `platform_invitations` ADD UNIQUE KEY `uq_inv_email` (`email`)"); }
             catch (PDOException $e) { /* still duplicates, skip */ }
         }
         // Always clean up garbage rows from broken migration
-        $pdo->exec("DELETE FROM `invitations` WHERE `email` = ''"  );
+        $pdo->exec("DELETE FROM `platform_invitations` WHERE `email` = ''"  );
 
         // Fix any columns without default values that we don't manage
-        $cols = $pdo->query("SHOW COLUMNS FROM `invitations`")->fetchAll();
+        $cols = $pdo->query("SHOW COLUMNS FROM `platform_invitations`")->fetchAll();
         foreach ($cols as $col) {
             if ($col['Default'] === null && $col['Null'] === 'NO'
                 && !in_array($col['Field'], ['id', 'email', 'invited_by', 'sent_at'])) {
                 try {
-                    $pdo->exec("ALTER TABLE `invitations` ALTER COLUMN `{$col['Field']}` SET DEFAULT 0");
+                    $pdo->exec("ALTER TABLE `platform_invitations` ALTER COLUMN `{$col['Field']}` SET DEFAULT 0");
                 } catch (PDOException $e) {
                     try {
-                        $pdo->exec("ALTER TABLE `invitations` ALTER COLUMN `{$col['Field']}` SET DEFAULT ''");
+                        $pdo->exec("ALTER TABLE `platform_invitations` ALTER COLUMN `{$col['Field']}` SET DEFAULT ''");
                     } catch (PDOException $e2) { /* skip */ }
                 }
             }
@@ -172,7 +166,7 @@ function body(): array {
 
 function requireAuth(): array {
     if (empty($_SESSION['user_id'])) json_out(['error' => 'Nepřihlášen'], 401);
-    $st = db()->prepare('SELECT id, name, email, avatar_color, is_verified, is_admin FROM users WHERE id = ?');
+    $st = db()->prepare('SELECT id, name, email, avatar_color, is_verified FROM users WHERE id = ?');
     $st->execute([$_SESSION['user_id']]);
     $user = $st->fetch();
     if (!$user) { session_destroy(); json_out(['error' => 'Uživatel nenalezen'], 401); }
@@ -346,7 +340,7 @@ function handleLogout(): never {
 
 function handleMe(): never {
     $user = requireAuth();
-    json_out(['user' => array_merge($user, ['is_admin' => (bool)$user['is_admin']])]);
+    json_out(['user' => array_merge($user, ['is_admin' => ($user['email'] === PLATFORM_ADMIN_EMAIL)])]);
 }
 
 function handleForgot(): never {
@@ -509,7 +503,7 @@ function handleGoogleCallback(): never {
 function handleMembers(): never {
     requireAuth();
     $rows = db()->query(
-        'SELECT id, name, email, avatar_color, is_verified, is_admin, created_at FROM users ORDER BY created_at ASC'
+        'SELECT id, name, email, avatar_color, is_verified, created_at FROM users ORDER BY created_at ASC'
     )->fetchAll();
 
     $members = [];
@@ -520,7 +514,7 @@ function handleMembers(): never {
             'email'        => $u['email'],
             'avatar_color' => $u['avatar_color'],
             'is_verified'  => (bool)$u['is_verified'],
-            'is_admin'     => (bool)$u['is_admin'],
+            'is_admin'     => ($u['email'] === PLATFORM_ADMIN_EMAIL),
             'created_at'   => substr($u['created_at'], 0, 10),
         ];
     }
@@ -532,7 +526,7 @@ function handleInvitations(): never {
     $rows = db()->query(
         "SELECT i.email, i.sent_at,
                 u.id AS user_id, u.name AS user_name, u.created_at AS accepted_at
-         FROM invitations i
+         FROM platform_invitations i
          LEFT JOIN users u ON u.email = i.email
          WHERE i.email != ''
          ORDER BY i.sent_at DESC"
@@ -567,7 +561,7 @@ function handleInvite(): never {
     // Already invited? Resend allowed — upsert
     $invBy = (int)$_SESSION['user_id'];
     db()->prepare(
-        'INSERT INTO invitations (email, invited_by) VALUES (?, ?)
+        'INSERT INTO platform_invitations (email, invited_by) VALUES (?, ?)
          ON DUPLICATE KEY UPDATE sent_at = NOW(), invited_by = VALUES(invited_by)'
     )->execute([$email, $invBy]);
 
@@ -593,7 +587,7 @@ function handleInvite(): never {
 
 function handleDeleteMember(): never {
     $me = requireAuth();
-    if (empty($me['is_admin'])) json_out(['error' => 'Nedostatečná oprávnění'], 403);
+    if ($me['email'] !== PLATFORM_ADMIN_EMAIL) json_out(['error' => 'Nedostatečná oprávnění'], 403);
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') json_out(['error' => 'POST required'], 405);
     $uid = (int)(body()['user_id'] ?? 0);
     if (!$uid)                json_out(['error' => 'Chybí user_id'], 422);
