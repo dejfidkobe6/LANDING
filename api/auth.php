@@ -83,11 +83,10 @@ function migrate(PDO $pdo): void {
 
         "CREATE TABLE IF NOT EXISTS `invitations` (
             `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
-            `email`      VARCHAR(180) NOT NULL,
+            `email`      VARCHAR(180) NOT NULL DEFAULT '',
             `invited_by` INT UNSIGNED NOT NULL DEFAULT 0,
             `sent_at`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (`id`),
-            UNIQUE KEY `uq_inv_email` (`email`)
+            PRIMARY KEY (`id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
         "CREATE TABLE IF NOT EXISTS `app_access` (
@@ -103,6 +102,32 @@ function migrate(PDO $pdo): void {
     foreach ($statements as $sql) {
         try { $pdo->exec($sql); } catch (PDOException $e) { /* table exists or hosting limitation */ }
     }
+
+    // Repair invitations table — add missing columns if table was created partially
+    try {
+        $existing = [];
+        foreach ($pdo->query("SHOW COLUMNS FROM `invitations`")->fetchAll() as $row) {
+            $existing[] = $row['Field'];
+        }
+        if (!in_array('email', $existing)) {
+            $pdo->exec("ALTER TABLE `invitations` ADD COLUMN `email` VARCHAR(180) NOT NULL DEFAULT '' AFTER `id`");
+        }
+        if (!in_array('invited_by', $existing)) {
+            $pdo->exec("ALTER TABLE `invitations` ADD COLUMN `invited_by` INT UNSIGNED NOT NULL DEFAULT 0");
+        }
+        if (!in_array('sent_at', $existing)) {
+            $pdo->exec("ALTER TABLE `invitations` ADD COLUMN `sent_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP");
+        }
+        // Add unique index on email if missing
+        $indexes = [];
+        foreach ($pdo->query("SHOW INDEX FROM `invitations`")->fetchAll() as $row) {
+            $indexes[] = $row['Key_name'];
+        }
+        if (!in_array('uq_inv_email', $indexes)) {
+            try { $pdo->exec("ALTER TABLE `invitations` ADD UNIQUE KEY `uq_inv_email` (`email`)"); }
+            catch (PDOException $e) { /* duplicate values exist, skip */ }
+        }
+    } catch (PDOException $e) { /* invitations table doesn't exist yet */ }
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────
