@@ -131,6 +131,7 @@ match ($action) {
     'google_redirect' => handleGoogleRedirect(),
     'google_callback' => handleGoogleCallback(),
     'members'         => handleMembers(),
+    'invitations'     => handleInvitations(),
     'invite'          => handleInvite(),
     default           => json_out(['error' => 'Neznámá akce'], 404),
 };
@@ -399,20 +400,45 @@ function handleGoogleCallback(): never {
 // ── MEMBERS ───────────────────────────────────────────────────────────
 function handleMembers(): never {
     requireAuth();
-    $users = db()->query(
+    $rows = db()->query(
         'SELECT id, name, email, avatar_color, is_verified, created_at FROM users ORDER BY created_at ASC'
     )->fetchAll();
 
-    $members = array_map(fn($u) => [
-        'id'           => (int)$u['id'],
-        'name'         => $u['name'],
-        'email'        => $u['email'],
-        'avatar_color' => $u['avatar_color'],
-        'is_verified'  => (bool)$u['is_verified'],
-        'created_at'   => substr($u['created_at'], 0, 10),
-    ], $users);
-
+    $members = [];
+    foreach ($rows as $u) {
+        $members[] = [
+            'id'           => (int)$u['id'],
+            'name'         => $u['name'],
+            'email'        => $u['email'],
+            'avatar_color' => $u['avatar_color'],
+            'is_verified'  => (bool)$u['is_verified'],
+            'created_at'   => substr($u['created_at'], 0, 10),
+        ];
+    }
     json_out(['members' => $members]);
+}
+
+function handleInvitations(): never {
+    requireAuth();
+    $rows = db()->query(
+        'SELECT i.email, i.sent_at,
+                u.id AS user_id, u.name AS user_name, u.created_at AS accepted_at
+         FROM invitations i
+         LEFT JOIN users u ON u.email = i.email
+         ORDER BY i.sent_at DESC'
+    )->fetchAll();
+
+    $list = [];
+    foreach ($rows as $r) {
+        $list[] = [
+            'email'       => $r['email'],
+            'sent_at'     => substr($r['sent_at'], 0, 10),
+            'accepted'    => !empty($r['user_id']),
+            'user_name'   => $r['user_name'] ?? null,
+            'accepted_at' => $r['accepted_at'] ? substr($r['accepted_at'], 0, 10) : null,
+        ];
+    }
+    json_out(['invitations' => $list]);
 }
 
 function handleInvite(): never {
@@ -420,23 +446,28 @@ function handleInvite(): never {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') json_out(['error' => 'POST required'], 405);
     $b     = body();
     $email = strtolower(trim($b['email'] ?? ''));
-    $name  = trim($b['name'] ?? '');
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) json_out(['error' => 'Neplatný e-mail'], 422);
-    if (!$name) $name = 'Nový člen';
 
+    // Already registered?
     $st = db()->prepare('SELECT id FROM users WHERE email = ?');
     $st->execute([$email]);
     if ($st->fetch()) json_out(['error' => 'Tento e-mail je již registrován'], 409);
 
+    // Already invited? Resend allowed — upsert
+    $invBy = (int)$_SESSION['user_id'];
+    db()->prepare(
+        'INSERT INTO invitations (email, invited_by) VALUES (?, ?)
+         ON DUPLICATE KEY UPDATE sent_at = NOW(), invited_by = VALUES(invited_by)'
+    )->execute([$email, $invBy]);
+
     $link = rtrim(env('APP_URL'), '/');
     $html = emailTemplate('Pozvánka do BeSix Platform', "
-        <p style='margin:0 0 16px;'>Ahoj <strong style='color:#c9a84c;'>{$name}</strong>,</p>
-        <p style='margin:0 0 16px;color:rgba(255,255,255,.75);line-height:1.6;'>
-            Byl/a jste pozván/a do platformy <strong>BeSix</strong> —
+        <p style='margin:0 0 16px;color:rgba(255,255,255,.8);line-height:1.6;'>
+            Byli jste pozván/a do platformy <strong style='color:#c9a84c;'>BeSix</strong> —
             digitálních nástrojů stavebního týmu.
         </p>
-        <p style='margin:0 0 28px;color:rgba(255,255,255,.75);line-height:1.6;'>
+        <p style='margin:0 0 28px;color:rgba(255,255,255,.65);line-height:1.6;'>
             Pro registraci klikněte na tlačítko níže a vytvořte si účet.
         </p>
         <a href='{$link}' style='display:inline-block;padding:13px 32px;
@@ -446,6 +477,6 @@ function handleInvite(): never {
             text-decoration:none;'>Registrovat se</a>
     ");
 
-    sendEmail($email, $name, 'Pozvánka do BeSix Platform', $html);
+    sendEmail($email, $email, 'Pozvánka do BeSix Platform', $html);
     json_out(['success' => true, 'message' => 'Pozvánka odeslána na ' . $email]);
 }
