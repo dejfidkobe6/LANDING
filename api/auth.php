@@ -131,6 +131,21 @@ function migrate(PDO $pdo): void {
         }
         // Always clean up garbage rows from broken migration
         $pdo->exec("DELETE FROM `invitations` WHERE `email` = ''");
+
+        // Fix any columns without default values that we don't manage
+        $cols = $pdo->query("SHOW COLUMNS FROM `invitations`")->fetchAll();
+        foreach ($cols as $col) {
+            if ($col['Default'] === null && $col['Null'] === 'NO'
+                && !in_array($col['Field'], ['id', 'email', 'invited_by', 'sent_at'])) {
+                try {
+                    $pdo->exec("ALTER TABLE `invitations` ALTER COLUMN `{$col['Field']}` SET DEFAULT 0");
+                } catch (PDOException $e) {
+                    try {
+                        $pdo->exec("ALTER TABLE `invitations` ALTER COLUMN `{$col['Field']}` SET DEFAULT ''");
+                    } catch (PDOException $e2) { /* skip */ }
+                }
+            }
+        }
     } catch (PDOException $e) { /* invitations table doesn't exist yet */ }
 }
 

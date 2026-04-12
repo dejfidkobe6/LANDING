@@ -813,7 +813,7 @@ function renderMembers(members){
     return;
   }
   tb.innerHTML = members.map(m => {
-    const init = m.name.trim()[0].toUpperCase();
+    const init = (m.name||'?').trim()[0].toUpperCase();
     const badge = m.is_verified
       ? `<span class="verified-badge yes">✓ Ověřen</span>`
       : `<span class="verified-badge no">✗ Neověřen</span>`;
