@@ -107,7 +107,8 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   border-radius:16px;
   overflow:hidden; cursor:pointer;
   backdrop-filter:blur(6px);
-  transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1), border-color 0.3s, background 0.3s;
+  box-shadow:0 4px 24px rgba(0,0,0,0.35), 0 0 0 0 rgba(201,168,76,0);
+  transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1), border-color 0.3s, background 0.3s, box-shadow 0.3s;
   animation:cardIn 0.7s ease both;
 }
 .card:nth-child(1){animation-delay:0.55s}
@@ -129,7 +130,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   transform:scaleX(0); transform-origin:left;
   transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);
 }
-.card:hover { transform:translateY(-7px) scale(1.01); border-color:rgba(255,255,255,0.4); background:rgba(255,255,255,0.18); }
+.card:hover { transform:translateY(-7px) scale(1.01); border-color:rgba(255,255,255,0.4); background:rgba(255,255,255,0.18); box-shadow:0 8px 40px rgba(0,0,0,0.45), 0 0 20px rgba(201,168,76,0.15); }
 .card:hover::before { opacity:1; }
 .card:hover::after { transform:scaleX(1); animation:shimmer 2s linear infinite; }
 @keyframes shimmer { 0%{background-position:0 0} 100%{background-position:200% 0} }
@@ -325,26 +326,6 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
       <div class="card-label">Modul · 04</div>
       <div class="card-name">BeSix Organs</div>
       <div class="card-desc">Organizační struktura stavebního týmu, přehled rolí a kontaktní přiřazení na projektu.</div>
-      <div class="card-link">Vstoupit <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
-    </a>
-
-    <a class="card" href="https://dokumenty.besix.cz">
-      <div class="card-bg"><svg viewBox="0 0 100 100" fill="none" stroke="rgba(255,255,255,1)" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M24 20 H84 V96 H24 Z" stroke-width="1" opacity="0.4"/>
-        <path d="M16 12 H76 V88 H16 Z" stroke-width="1" opacity="0.6"/>
-        <path d="M8 4 H60 L76 20 V80 H8 Z" stroke-width="1.5"/>
-        <path d="M60 4 L60 20 H76" stroke-width="1"/>
-        <line x1="16" y1="30" x2="58" y2="30" stroke-width="1.2"/>
-        <line x1="16" y1="39" x2="66" y2="39" stroke-width="1"/>
-        <line x1="16" y1="48" x2="62" y2="48" stroke-width="1"/>
-        <line x1="16" y1="57" x2="64" y2="57" stroke-width="1"/>
-        <line x1="16" y1="66" x2="54" y2="66" stroke-width="1"/>
-      </svg></div><div class="scan"></div>
-      <div class="card-num">05</div>
-      <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg></div>
-      <div class="card-label">Modul · 03</div>
-      <div class="card-name">Dokumenty</div>
-      <div class="card-desc">Manuály, technická dokumentace a sdílené firemní soubory přístupné celému týmu.</div>
       <div class="card-link">Vstoupit <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
     </a>
 
