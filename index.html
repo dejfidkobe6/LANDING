@@ -847,6 +847,20 @@ function renderMembers(members){
 }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+async function cancelInvite(email){
+  if(!confirm('Zrušit pozvánku pro '+email+'?')) return;
+  try {
+    const r = await fetch(API+'cancel_invite',{
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({email})
+    });
+    const d = await r.json();
+    if(!r.ok) throw new Error(d.error||'Chyba');
+    loadInvitations();
+  } catch(e){ alert(e.message); }
+}
+
 async function deleteMember(uid, name){
   if(!confirm('Smazat člena „'+name+'"? Tato akce je nevratná.')) return;
   try {
@@ -908,7 +922,9 @@ function renderInvitations(list){
     const badge = i.accepted
       ? `<span class="verified-badge yes">✓ Přijata</span>`
       : `<span class="verified-badge no">Čeká</span>`;
-    const who = i.accepted ? `<span style="font-size:.72rem;color:rgba(255,255,255,.5);">${esc(i.user_name||'')}</span>` : '—';
+    const who = i.accepted
+      ? `<span style="font-size:.72rem;color:rgba(255,255,255,.5);">${esc(i.user_name||'')}</span>`
+      : `<button class="del-btn" onclick="cancelInvite('${esc(i.email)}')" title="Zrušit pozvánku" style="font-size:.65rem;padding:3px 10px;border:1px solid rgba(255,100,100,0.3);border-radius:4px;letter-spacing:.05em;">Zrušit</button>`;
     return `<tr>
       <td><span class="member-email">${esc(i.email)}</span></td>
       <td style="color:rgba(255,255,255,.4);font-size:.72rem;">${i.sent_at}</td>

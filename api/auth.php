@@ -285,6 +285,7 @@ match ($action) {
     'members'         => handleMembers(),
     'invitations'     => handleInvitations(),
     'invite'          => handleInvite(),
+    'cancel_invite'   => handleCancelInvite(),
     'delete_member'   => handleDeleteMember(),
     default           => json_out(['error' => 'Neznámá akce'], 404),
 };
@@ -659,6 +660,19 @@ function handleInvite(): never {
 
     sendEmail($email, $email, 'Pozvánka do BeSix Platform', $html);
     json_out(['success' => true, 'message' => 'Pozvánka odeslána na ' . $email]);
+}
+
+function handleCancelInvite(): never {
+    requireAuth();
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') json_out(['error' => 'POST required'], 405);
+    $email = strtolower(trim(body()['email'] ?? ''));
+    if (!$email) json_out(['error' => 'Chybí email'], 422);
+    // Only cancel if not yet accepted (email not in users table)
+    $st = db()->prepare('SELECT id FROM users WHERE email = ?');
+    $st->execute([$email]);
+    if ($st->fetch()) json_out(['error' => 'Pozvánka již byla přijata'], 409);
+    db()->prepare('DELETE FROM platform_invitations WHERE email = ?')->execute([$email]);
+    json_out(['success' => true]);
 }
 
 function handleDeleteMember(): never {
