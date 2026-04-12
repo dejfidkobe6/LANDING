@@ -594,9 +594,11 @@ function handleDeleteMember(): never {
     if ($uid === (int)$me['id']) json_out(['error' => 'Nelze smazat vlastní účet'], 400);
 
     $pdo = db();
-    // Disable FK checks so other apps' references don't block deletion
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
     try {
+        // Delete projects this user created (not projects they're just a member of)
+        $pdo->prepare('DELETE FROM projects WHERE created_by = ?')->execute([$uid]);
+        // Delete the user
         $pdo->prepare('DELETE FROM users WHERE id = ?')->execute([$uid]);
     } finally {
         $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
