@@ -154,11 +154,12 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 @keyframes cardScan { 0%{top:0} 100%{top:100%} }
 
 .card-num {
-  position:absolute; bottom:16px; right:20px;
-  font-family:'Rajdhani',sans-serif; font-size:4.5rem; font-weight:700;
-  color:rgba(255,255,255,0.05); line-height:1; user-select:none; transition:color 0.3s;
+  position:absolute; top:16px; right:20px;
+  font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:600;
+  color:rgba(255,255,255,0.18); line-height:1; user-select:none;
+  letter-spacing:0.12em; transition:color 0.3s;
 }
-.card:hover .card-num { color:rgba(255,255,255,0.1); }
+.card:hover .card-num { color:rgba(255,255,255,0.35); }
 
 .card-icon {
   width:44px; height:44px;
@@ -171,10 +172,10 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 .card-icon svg { width:20px; height:20px; stroke:rgba(255,255,255,0.6); fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; transition:stroke 0.3s; }
 .card:hover .card-icon svg { stroke:var(--gold); }
 
-.card-label { font-size:0.58rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--gold); opacity:0.7; margin-bottom:8px; }
+.card-label { display:none; }
 .card-name { font-family:'Rajdhani',sans-serif; font-size:1.6rem; font-weight:600; letter-spacing:0.1em; color:rgba(255,255,255,0.9); margin-bottom:10px; line-height:1; transition:color 0.3s,text-shadow 0.3s; }
 .card:hover .card-name { color:#fff; text-shadow:0 0 16px rgba(255,255,255,0.4); }
-.card-desc { font-size:0.78rem; color:rgba(255,255,255,0.38); line-height:1.6; font-weight:300; }
+.card-desc { display:none; }
 
 .card-link {
   margin-top:24px; display:flex; align-items:center; gap:9px;
