@@ -66,8 +66,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 
 .logo-img {
   width:260px; height:260px; object-fit:contain;
-
-  filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)) drop-shadow(0 0 24px rgba(255,255,255,0.25));
+  filter: brightness(0) invert(1) drop-shadow(0 0 14px rgba(255,255,255,0.8)) drop-shadow(0 0 36px rgba(255,255,255,0.4));
 }
 
 
@@ -103,11 +102,11 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 .card {
   position:relative; display:block; text-decoration:none; color:inherit;
   padding:34px 26px 30px;
-  background:rgba(255,255,255,0.055);
-  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.11);
+  border:1px solid rgba(255,255,255,0.22);
   border-radius:16px;
   overflow:hidden; cursor:pointer;
-  backdrop-filter:blur(4px);
+  backdrop-filter:blur(6px);
   transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1), border-color 0.3s, background 0.3s;
   animation:cardIn 0.7s ease both;
 }
@@ -130,7 +129,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   transform:scaleX(0); transform-origin:left;
   transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);
 }
-.card:hover { transform:translateY(-7px) scale(1.01); border-color:rgba(255,255,255,0.28); background:rgba(255,255,255,0.1); }
+.card:hover { transform:translateY(-7px) scale(1.01); border-color:rgba(255,255,255,0.4); background:rgba(255,255,255,0.18); }
 .card:hover::before { opacity:1; }
 .card:hover::after { transform:scaleX(1); animation:shimmer 2s linear infinite; }
 @keyframes shimmer { 0%{background-position:0 0} 100%{background-position:200% 0} }
@@ -142,10 +141,10 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 .card-bg {
   position:absolute; bottom:-12px; right:-12px;
   width:160px; height:160px;
-  opacity:0.06; transition:opacity 0.4s, transform 0.4s;
+  opacity:0.14; transition:opacity 0.4s, transform 0.4s;
   pointer-events:none;
 }
-.card:hover .card-bg { opacity:0.15; transform:scale(1.05); }
+.card:hover .card-bg { opacity:0.28; transform:scale(1.05); }
 .card-bg svg { width:100%; height:100%; }
 
 /* scan effect */
@@ -163,18 +162,18 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 
 .card-icon {
   width:44px; height:44px;
-  border:1px solid rgba(255,255,255,0.2);
+  border:1px solid rgba(255,255,255,0.45);
   display:flex; align-items:center; justify-content:center;
   margin-bottom:24px;
   transition:border-color 0.3s, background 0.3s, box-shadow 0.3s;
 }
-.card:hover .card-icon { border-color:var(--gold); background:rgba(201,168,76,0.1); box-shadow:0 0 16px rgba(201,168,76,0.2); }
-.card-icon svg { width:20px; height:20px; stroke:rgba(255,255,255,0.6); fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; transition:stroke 0.3s; }
+.card:hover .card-icon { border-color:var(--gold); background:rgba(201,168,76,0.15); box-shadow:0 0 20px rgba(201,168,76,0.3); }
+.card-icon svg { width:20px; height:20px; stroke:rgba(255,255,255,0.95); fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; transition:stroke 0.3s; }
 .card:hover .card-icon svg { stroke:var(--gold); }
 
 .card-label { display:none; }
-.card-name { font-family:'Rajdhani',sans-serif; font-size:1.6rem; font-weight:600; letter-spacing:0.1em; color:rgba(255,255,255,0.9); margin-bottom:10px; line-height:1; transition:color 0.3s,text-shadow 0.3s; }
-.card:hover .card-name { color:#fff; text-shadow:0 0 16px rgba(255,255,255,0.4); }
+.card-name { font-family:'Rajdhani',sans-serif; font-size:1.6rem; font-weight:600; letter-spacing:0.1em; color:var(--gold); margin-bottom:10px; line-height:1; transition:color 0.3s,text-shadow 0.3s; }
+.card:hover .card-name { color:#dfc06a; text-shadow:0 0 20px rgba(201,168,76,0.5); }
 .card-desc { display:none; }
 
 .card-link {
@@ -243,7 +242,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
       <div class="card-num">01</div>
       <div class="card-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
       <div class="card-label">Modul · 01</div>
-      <div class="card-name" style="color:var(--gold);">BeSix Board</div>
+      <div class="card-name">BeSix Board</div>
       <div class="card-desc">Kanban řízení úkolů, přiřazení týmu, termíny a fotodokumentace stavby v reálném čase.</div>
       <div class="card-link">Vstoupit <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
     </a>
@@ -266,7 +265,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
       <div class="card-num">02</div>
       <div class="card-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg></div>
       <div class="card-label">Modul · 02</div>
-      <div class="card-name" style="color:var(--olive-light);">BeSix Plans</div>
+      <div class="card-name">BeSix Plans</div>
       <div class="card-desc">Interaktivní anotace výkresů, označení místností a správa projektové dokumentace.</div>
       <div class="card-link">Vstoupit <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
     </a>
@@ -294,7 +293,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
       <div class="card-num">03</div>
       <div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 16 14"/></svg></div>
       <div class="card-label">Modul · 03</div>
-      <div class="card-name" style="color:#fff;">BeSix Time</div>
+      <div class="card-name">BeSix Time</div>
       <div class="card-desc">Evidence pracovní doby, přehled odpracovaných hodin a výkazy pro celý stavební tým.</div>
       <div class="card-link">Vstoupit <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
     </a>
