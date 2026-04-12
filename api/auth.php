@@ -12,6 +12,14 @@ function env(string $key, string $default = ''): string {
     return getenv($key) ?: ($_ENV[$key] ?? $default);
 }
 
+// ── GLOBAL ERROR → JSON ───────────────────────────────────────────────
+set_exception_handler(function (Throwable $e) {
+    if (!headers_sent()) header('Content-Type: application/json; charset=utf-8');
+    http_response_code(500);
+    echo json_encode(['error' => 'Serverová chyba: ' . $e->getMessage()], JSON_UNESCAPED_UNICODE);
+    exit;
+});
+
 // ── HEADERS ───────────────────────────────────────────────────────────
 header('Content-Type: application/json; charset=utf-8');
 $origin  = $_SERVER['HTTP_ORIGIN'] ?? '';
@@ -53,8 +61,8 @@ function db(): PDO {
 }
 
 function migrate(PDO $pdo): void {
-    $pdo->exec("
-        CREATE TABLE IF NOT EXISTS `users` (
+    $statements = [
+        "CREATE TABLE IF NOT EXISTS `users` (
             `id`                  INT UNSIGNED  NOT NULL AUTO_INCREMENT,
             `name`                VARCHAR(120)  NOT NULL,
             `email`               VARCHAR(180)  NOT NULL,
@@ -71,31 +79,30 @@ function migrate(PDO $pdo): void {
             UNIQUE KEY `uq_google_id` (`google_id`),
             KEY `idx_verification`    (`verification_token`),
             KEY `idx_reset`           (`reset_token`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    ");
-    $pdo->exec("
-        CREATE TABLE IF NOT EXISTS `invitations` (
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+        "CREATE TABLE IF NOT EXISTS `invitations` (
             `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
             `email`      VARCHAR(180) NOT NULL,
-            `invited_by` INT UNSIGNED NOT NULL,
+            `invited_by` INT UNSIGNED NOT NULL DEFAULT 0,
             `sent_at`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`),
-            UNIQUE KEY `uq_inv_email` (`email`),
-            FOREIGN KEY (`invited_by`) REFERENCES `users`(`id`) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    ");
-    $pdo->exec("
-        CREATE TABLE IF NOT EXISTS `app_access` (
+            UNIQUE KEY `uq_inv_email` (`email`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+        "CREATE TABLE IF NOT EXISTS `app_access` (
             `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
             `user_id`    INT UNSIGNED NOT NULL,
             `app`        VARCHAR(20)  NOT NULL,
             `role`       VARCHAR(20)  NOT NULL DEFAULT 'clen',
             `granted_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`),
-            UNIQUE KEY `uq_user_app` (`user_id`, `app`),
-            FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    ");
+            UNIQUE KEY `uq_user_app` (`user_id`, `app`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+    ];
+    foreach ($statements as $sql) {
+        try { $pdo->exec($sql); } catch (PDOException $e) { /* table exists or hosting limitation */ }
+    }
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────
