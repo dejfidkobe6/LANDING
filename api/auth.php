@@ -220,9 +220,8 @@ function emailTemplate(string $title, string $body): string {
         <table cellpadding='0' cellspacing='0'>
           <tr>
             <td style='padding-right:14px;vertical-align:middle;'>
-              <!-- BeSix asterisk symbol in gold -->
-              <div style='width:42px;height:42px;background:#4a5340;border:1px solid rgba(201,168,76,0.4);
-                          display:inline-block;text-align:center;line-height:42px;font-size:22px;color:#c9a84c;'>✦</div>
+              <img src='https://besix.cz/besix_logo_bila.png' width='42' height='42'
+                   style='display:block;width:42px;height:42px;border:0;' alt='BeSix'>
             </td>
             <td style='vertical-align:middle;'>
               <div style='font-family:Georgia,serif;font-size:22px;font-weight:bold;
@@ -624,15 +623,132 @@ function handleInvite(): never {
         <p style='margin:0 0 24px;font-size:13px;letter-spacing:1px;color:rgba(201,168,76,0.8);
                   text-transform:uppercase;'>do BeSix Platform</p>
 
-        <table width='100%' cellpadding='0' cellspacing='0' style='margin:0 0 28px;'>
+        <div style='font-size:10px;letter-spacing:3px;text-transform:uppercase;
+                    color:rgba(201,168,76,0.6);margin-bottom:10px;'>Digitální nástroje</div>
+        <table width='100%' cellpadding='0' cellspacing='0' style='margin:0 0 28px;
+               background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);
+               border-left:3px solid #c9a84c;'>
           <tr>
-            <td style='background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);
-                       border-left:3px solid #c9a84c;padding:16px 20px;'>
-              <div style='font-size:10px;letter-spacing:3px;text-transform:uppercase;
-                          color:rgba(201,168,76,0.6);margin-bottom:6px;'>Digitální nástroje</div>
-              <div style='font-size:14px;color:rgba(255,255,255,0.8);line-height:1.6;'>
-                Board &nbsp;·&nbsp; Plans &nbsp;·&nbsp; Time &nbsp;·&nbsp; Organs &nbsp;·&nbsp; CAD
-              </div>
+            <!-- Board -->
+            <td width='20%' align='center' valign='bottom'
+                style='padding:14px 4px 10px;border-right:1px solid rgba(255,255,255,0.07);'>
+              <svg width='44' height='40' viewBox='0 0 110 100' fill='none'
+                   stroke='rgba(255,255,255,0.75)' stroke-linecap='round' stroke-linejoin='round'
+                   style='display:block;margin:0 auto;'>
+                <rect x='2' y='8' width='30' height='84' rx='4' stroke-width='1.5'/>
+                <rect x='40' y='8' width='30' height='84' rx='4' stroke-width='1.5'/>
+                <rect x='78' y='8' width='30' height='84' rx='4' stroke-width='1.5'/>
+                <rect x='6' y='14' width='22' height='14' rx='2' stroke-width='1'/>
+                <rect x='6' y='32' width='22' height='14' rx='2' stroke-width='1'/>
+                <rect x='6' y='50' width='22' height='14' rx='2' stroke-width='1'/>
+                <rect x='44' y='14' width='22' height='14' rx='2' stroke-width='1'/>
+                <rect x='44' y='32' width='22' height='14' rx='2' stroke-width='1'/>
+                <rect x='82' y='14' width='22' height='14' rx='2' stroke-width='1'/>
+                <rect x='82' y='32' width='22' height='14' rx='2' stroke-width='1'/>
+                <rect x='82' y='50' width='22' height='14' rx='2' stroke-width='1'/>
+                <rect x='82' y='68' width='22' height='14' rx='2' stroke-width='1'/>
+              </svg>
+              <div style='font-size:8px;letter-spacing:2px;text-transform:uppercase;
+                          color:rgba(255,255,255,0.45);margin-top:7px;'>Board</div>
+            </td>
+            <!-- Plans -->
+            <td width='20%' align='center' valign='bottom'
+                style='padding:14px 4px 10px;border-right:1px solid rgba(255,255,255,0.07);'>
+              <svg width='40' height='40' viewBox='0 0 100 100' fill='none'
+                   stroke='rgba(255,255,255,0.75)' stroke-linecap='round' stroke-linejoin='round'
+                   style='display:block;margin:0 auto;'>
+                <path d='M4 4 H96 V68 H68 V96 H4 Z' stroke-width='2'/>
+                <line x1='4' y1='48' x2='52' y2='48' stroke-width='2'/>
+                <line x1='52' y1='4' x2='52' y2='68' stroke-width='2'/>
+                <line x1='68' y1='68' x2='68' y2='48' stroke-width='2'/>
+                <line x1='52' y1='48' x2='68' y2='48' stroke-width='2'/>
+                <path d='M52 30 A16 16 0 0 1 68 46' stroke-width='1'/>
+                <line x1='8' y1='90' x2='36' y2='90' stroke-width='1'/>
+                <line x1='8' y1='87' x2='8' y2='93' stroke-width='1'/>
+                <line x1='36' y1='87' x2='36' y2='93' stroke-width='1'/>
+                <line x1='72' y1='72' x2='92' y2='72' stroke-width='1'/>
+                <line x1='72' y1='69' x2='72' y2='75' stroke-width='1'/>
+                <line x1='92' y1='69' x2='92' y2='75' stroke-width='1'/>
+              </svg>
+              <div style='font-size:8px;letter-spacing:2px;text-transform:uppercase;
+                          color:rgba(255,255,255,0.45);margin-top:7px;'>Plans</div>
+            </td>
+            <!-- Time -->
+            <td width='20%' align='center' valign='bottom'
+                style='padding:14px 4px 10px;border-right:1px solid rgba(255,255,255,0.07);'>
+              <svg width='40' height='40' viewBox='0 0 100 100' fill='none'
+                   stroke='rgba(255,255,255,0.75)' stroke-linecap='round'
+                   style='display:block;margin:0 auto;'>
+                <circle cx='50' cy='50' r='46' stroke-width='1.5'/>
+                <circle cx='50' cy='50' r='38' stroke-width='0.5'/>
+                <line x1='50' y1='7' x2='50' y2='17' stroke-width='2.5'/>
+                <line x1='73' y1='13' x2='68' y2='22' stroke-width='2'/>
+                <line x1='90' y1='29' x2='82' y2='34' stroke-width='2'/>
+                <line x1='94' y1='50' x2='84' y2='50' stroke-width='2.5'/>
+                <line x1='90' y1='71' x2='82' y2='66' stroke-width='2'/>
+                <line x1='73' y1='87' x2='68' y2='78' stroke-width='2'/>
+                <line x1='50' y1='93' x2='50' y2='83' stroke-width='2.5'/>
+                <line x1='27' y1='87' x2='32' y2='78' stroke-width='2'/>
+                <line x1='10' y1='71' x2='18' y2='66' stroke-width='2'/>
+                <line x1='6' y1='50' x2='16' y2='50' stroke-width='2.5'/>
+                <line x1='10' y1='29' x2='18' y2='34' stroke-width='2'/>
+                <line x1='27' y1='13' x2='32' y2='22' stroke-width='2'/>
+                <line x1='50' y1='50' x2='34' y2='26' stroke-width='2.5'/>
+                <line x1='50' y1='50' x2='70' y2='40' stroke-width='1.5'/>
+                <circle cx='50' cy='50' r='3.5' fill='rgba(255,255,255,0.8)' stroke='none'/>
+              </svg>
+              <div style='font-size:8px;letter-spacing:2px;text-transform:uppercase;
+                          color:rgba(255,255,255,0.45);margin-top:7px;'>Time</div>
+            </td>
+            <!-- Organs -->
+            <td width='20%' align='center' valign='bottom'
+                style='padding:14px 4px 10px;border-right:1px solid rgba(255,255,255,0.07);'>
+              <svg width='40' height='40' viewBox='0 0 100 100' fill='none'
+                   stroke='rgba(255,255,255,0.75)' stroke-linecap='round' stroke-linejoin='round'
+                   style='display:block;margin:0 auto;'>
+                <rect x='36' y='4' width='28' height='16' rx='3' stroke-width='1.5'/>
+                <line x1='50' y1='20' x2='50' y2='34' stroke-width='1.5'/>
+                <line x1='18' y1='34' x2='82' y2='34' stroke-width='1.5'/>
+                <line x1='18' y1='34' x2='18' y2='42' stroke-width='1.5'/>
+                <line x1='82' y1='34' x2='82' y2='42' stroke-width='1.5'/>
+                <rect x='4' y='42' width='28' height='14' rx='3' stroke-width='1.5'/>
+                <rect x='68' y='42' width='28' height='14' rx='3' stroke-width='1.5'/>
+                <line x1='18' y1='56' x2='18' y2='66' stroke-width='1.5'/>
+                <line x1='8' y1='66' x2='28' y2='66' stroke-width='1.5'/>
+                <line x1='8' y1='66' x2='8' y2='72' stroke-width='1.5'/>
+                <line x1='28' y1='66' x2='28' y2='72' stroke-width='1.5'/>
+                <rect x='2' y='72' width='14' height='12' rx='2' stroke-width='1'/>
+                <rect x='22' y='72' width='14' height='12' rx='2' stroke-width='1'/>
+                <line x1='82' y1='56' x2='82' y2='66' stroke-width='1.5'/>
+                <line x1='68' y1='66' x2='96' y2='66' stroke-width='1.5'/>
+                <line x1='68' y1='66' x2='68' y2='72' stroke-width='1.5'/>
+                <line x1='96' y1='66' x2='96' y2='72' stroke-width='1.5'/>
+                <rect x='62' y='72' width='14' height='12' rx='2' stroke-width='1'/>
+                <rect x='83' y='72' width='14' height='12' rx='2' stroke-width='1'/>
+              </svg>
+              <div style='font-size:8px;letter-spacing:2px;text-transform:uppercase;
+                          color:rgba(255,255,255,0.45);margin-top:7px;'>Organs</div>
+            </td>
+            <!-- CAD -->
+            <td width='20%' align='center' valign='bottom'
+                style='padding:14px 4px 10px;'>
+              <svg width='40' height='40' viewBox='0 0 100 100' fill='none'
+                   stroke='rgba(255,255,255,0.75)' stroke-linecap='round' stroke-linejoin='round'
+                   style='display:block;margin:0 auto;'>
+                <polygon points='50,6 90,28 90,72 50,94 10,72 10,28' stroke-width='1.5'/>
+                <line x1='50' y1='6' x2='50' y2='50' stroke-width='1'/>
+                <line x1='90' y1='28' x2='50' y2='50' stroke-width='1'/>
+                <line x1='10' y1='28' x2='50' y2='50' stroke-width='1'/>
+                <polygon points='50,6 90,28 50,50 10,28' stroke-width='1.5'/>
+                <line x1='2' y1='28' x2='2' y2='72' stroke-width='0.8'/>
+                <line x1='0' y1='28' x2='4' y2='28' stroke-width='0.8'/>
+                <line x1='0' y1='72' x2='4' y2='72' stroke-width='0.8'/>
+                <line x1='10' y1='98' x2='90' y2='98' stroke-width='0.8'/>
+                <line x1='10' y1='96' x2='10' y2='100' stroke-width='0.8'/>
+                <line x1='90' y1='96' x2='90' y2='100' stroke-width='0.8'/>
+              </svg>
+              <div style='font-size:8px;letter-spacing:2px;text-transform:uppercase;
+                          color:rgba(255,255,255,0.45);margin-top:7px;'>CAD</div>
             </td>
           </tr>
         </table>
