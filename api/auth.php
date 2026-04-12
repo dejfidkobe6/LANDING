@@ -131,7 +131,7 @@ match ($action) {
     'google_redirect' => handleGoogleRedirect(),
     'google_callback' => handleGoogleCallback(),
     'members'         => handleMembers(),
-    'set_access'      => handleSetAccess(),
+    'invite'          => handleInvite(),
     default           => json_out(['error' => 'Neznámá akce'], 404),
 };
 
@@ -400,52 +400,52 @@ function handleGoogleCallback(): never {
 function handleMembers(): never {
     requireAuth();
     $users = db()->query(
-        'SELECT id, name, email, avatar_color FROM users ORDER BY created_at ASC'
+        'SELECT id, name, email, avatar_color, is_verified, created_at FROM users ORDER BY created_at ASC'
     )->fetchAll();
-    $rows = db()->query('SELECT user_id, app, role FROM app_access')->fetchAll();
 
-    $map = [];
-    foreach ($rows as $r) {
-        $map[$r['user_id']][$r['app']] = $r['role'];
-    }
+    $members = array_map(fn($u) => [
+        'id'           => (int)$u['id'],
+        'name'         => $u['name'],
+        'email'        => $u['email'],
+        'avatar_color' => $u['avatar_color'],
+        'is_verified'  => (bool)$u['is_verified'],
+        'created_at'   => substr($u['created_at'], 0, 10),
+    ], $users);
 
-    $members = [];
-    foreach ($users as $u) {
-        $members[] = [
-            'id'           => (int)$u['id'],
-            'name'         => $u['name'],
-            'email'        => $u['email'],
-            'avatar_color' => $u['avatar_color'],
-            'apps'         => $map[$u['id']] ?? (object)[],
-        ];
-    }
     json_out(['members' => $members]);
 }
 
-function handleSetAccess(): never {
+function handleInvite(): never {
     requireAuth();
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') json_out(['error' => 'POST required'], 405);
-    $b       = body();
-    $uid     = (int)($b['user_id'] ?? 0);
-    $app     = $b['app']  ?? '';
-    $role    = $b['role'] ?? '';
-    $validApps  = ['board', 'plans', 'time', 'organs', 'cad'];
-    $validRoles = ['host', 'clen', 'admin'];
+    $b     = body();
+    $email = strtolower(trim($b['email'] ?? ''));
+    $name  = trim($b['name'] ?? '');
 
-    if (!$uid || !in_array($app, $validApps, true)) json_out(['error' => 'Neplatné parametry'], 422);
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) json_out(['error' => 'Neplatný e-mail'], 422);
+    if (!$name) $name = 'Nový člen';
 
-    $st = db()->prepare('SELECT id FROM users WHERE id = ?');
-    $st->execute([$uid]);
-    if (!$st->fetch()) json_out(['error' => 'Uživatel nenalezen'], 404);
+    $st = db()->prepare('SELECT id FROM users WHERE email = ?');
+    $st->execute([$email]);
+    if ($st->fetch()) json_out(['error' => 'Tento e-mail je již registrován'], 409);
 
-    if (!$role || $role === 'none') {
-        db()->prepare('DELETE FROM app_access WHERE user_id = ? AND app = ?')->execute([$uid, $app]);
-    } else {
-        if (!in_array($role, $validRoles, true)) json_out(['error' => 'Neplatná role'], 422);
-        db()->prepare(
-            'INSERT INTO app_access (user_id, app, role) VALUES (?, ?, ?)
-             ON DUPLICATE KEY UPDATE role = VALUES(role)'
-        )->execute([$uid, $app, $role]);
-    }
-    json_out(['success' => true]);
+    $link = rtrim(env('APP_URL'), '/');
+    $html = emailTemplate('Pozvánka do BeSix Platform', "
+        <p style='margin:0 0 16px;'>Ahoj <strong style='color:#c9a84c;'>{$name}</strong>,</p>
+        <p style='margin:0 0 16px;color:rgba(255,255,255,.75);line-height:1.6;'>
+            Byl/a jste pozván/a do platformy <strong>BeSix</strong> —
+            digitálních nástrojů stavebního týmu.
+        </p>
+        <p style='margin:0 0 28px;color:rgba(255,255,255,.75);line-height:1.6;'>
+            Pro registraci klikněte na tlačítko níže a vytvořte si účet.
+        </p>
+        <a href='{$link}' style='display:inline-block;padding:13px 32px;
+            background:#4A5340;border:1px solid rgba(201,168,76,.5);border-radius:8px;
+            color:#c9a84c;font-family:Rajdhani,sans-serif;font-size:1rem;
+            font-weight:600;letter-spacing:.15em;text-transform:uppercase;
+            text-decoration:none;'>Registrovat se</a>
+    ");
+
+    sendEmail($email, $name, 'Pozvánka do BeSix Platform', $html);
+    json_out(['success' => true, 'message' => 'Pozvánka odeslána na ' . $email]);
 }
