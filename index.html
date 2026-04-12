@@ -206,6 +206,30 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 .auth-google:hover { background:#fff; box-shadow:0 4px 16px rgba(0,0,0,0.25); }
 .auth-google svg { width:18px; height:18px; flex-shrink:0; }
 
+.auth-msg { font-size:.75rem; padding:9px 12px; border-radius:6px; display:none; line-height:1.4; }
+.auth-msg.error   { display:block; background:rgba(220,60,60,.15); color:#ff9090; border:1px solid rgba(220,60,60,.3); }
+.auth-msg.success { display:block; background:rgba(75,180,75,.15); color:#90ee90; border:1px solid rgba(75,180,75,.3); }
+.auth-submit:disabled { opacity:.5; cursor:not-allowed; }
+
+/* stav přihlášeného uživatele */
+.user-pill {
+  display:none; align-items:center; gap:12px; margin-bottom:50px;
+  animation:fadeDown 0.6s ease both;
+}
+.user-pill.visible { display:flex; }
+.user-avatar {
+  width:36px; height:36px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Rajdhani',sans-serif; font-size:.9rem; font-weight:700; color:#fff;
+}
+.user-name { font-family:'Rajdhani',sans-serif; font-size:1rem; letter-spacing:.12em; color:rgba(255,255,255,.85); }
+.user-logout {
+  background:none; border:1px solid rgba(255,255,255,.2); border-radius:6px;
+  padding:4px 12px; font-size:.62rem; letter-spacing:.18em; text-transform:uppercase;
+  color:rgba(255,255,255,.4); cursor:pointer; transition:all .2s;
+}
+.user-logout:hover { border-color:rgba(255,255,255,.5); color:rgba(255,255,255,.8); }
+
 /* ── CARDS ── */
 .cards {
   display:grid; grid-template-columns:repeat(4,1fr); gap:16px;
@@ -338,10 +362,16 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 
   <div class="tagline">Digitální nástroje stavebního týmu</div>
 
-  <button class="auth-trigger" onclick="openAuth()">
+  <button class="auth-trigger" id="auth-trigger-btn" onclick="openAuth()">
     <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     Přihlásit se do platformy BeSix
   </button>
+
+  <div class="user-pill" id="user-pill">
+    <div class="user-avatar" id="user-avatar"></div>
+    <span class="user-name" id="user-name-label"></span>
+    <button class="user-logout" onclick="doLogout()">Odhlásit se</button>
+  </div>
 
   <div class="cards">
 
@@ -498,18 +528,22 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
       <button class="auth-tab" onclick="switchTab('register',this)">Registrovat</button>
     </div>
 
-    <form class="auth-form" id="form-login" onsubmit="return false">
+    <form class="auth-form" id="form-login" onsubmit="submitLogin(event)">
+      <div id="msg-login" class="auth-msg"></div>
       <div class="auth-field">
         <label>E-mail</label>
-        <input type="email" placeholder="vas@email.cz" autocomplete="email">
+        <input id="login-email" type="email" placeholder="vas@email.cz" autocomplete="email">
       </div>
       <div class="auth-field">
         <label>Heslo</label>
-        <input type="password" placeholder="••••••••" autocomplete="current-password">
+        <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password">
       </div>
-      <button type="submit" class="auth-submit">Přihlásit se</button>
+      <div style="text-align:right;margin-top:-8px;">
+        <button type="button" onclick="showForgot()" style="background:none;border:none;cursor:pointer;font-size:.68rem;letter-spacing:.1em;color:rgba(255,255,255,.35);text-transform:uppercase;padding:0;">Zapomenuté heslo</button>
+      </div>
+      <button type="submit" class="auth-submit" id="btn-login">Přihlásit se</button>
       <div class="auth-or">nebo</div>
-      <button type="button" class="auth-google" onclick="void(0)">
+      <button type="button" class="auth-google" onclick="googleAuth()"
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
           <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -520,26 +554,27 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
       </button>
     </form>
 
-    <form class="auth-form hidden" id="form-register" onsubmit="return false">
+    <form class="auth-form hidden" id="form-register" onsubmit="submitRegister(event)">
+      <div id="msg-register" class="auth-msg"></div>
       <div class="auth-field">
         <label>Jméno a příjmení</label>
-        <input type="text" placeholder="Jan Novák" autocomplete="name">
+        <input id="reg-name" type="text" placeholder="Jan Novák" autocomplete="name">
       </div>
       <div class="auth-field">
         <label>E-mail</label>
-        <input type="email" placeholder="vas@email.cz" autocomplete="email">
+        <input id="reg-email" type="email" placeholder="vas@email.cz" autocomplete="email">
       </div>
       <div class="auth-field">
         <label>Heslo</label>
-        <input type="password" placeholder="••••••••" autocomplete="new-password">
+        <input id="reg-password" type="password" placeholder="••••••••" autocomplete="new-password">
       </div>
       <div class="auth-field">
         <label>Potvrzení hesla</label>
-        <input type="password" placeholder="••••••••" autocomplete="new-password">
+        <input id="reg-confirm" type="password" placeholder="••••••••" autocomplete="new-password">
       </div>
-      <button type="submit" class="auth-submit">Registrovat se</button>
+      <button type="submit" class="auth-submit" id="btn-register">Registrovat se</button>
       <div class="auth-or">nebo</div>
-      <button type="button" class="auth-google" onclick="void(0)">
+      <button type="button" class="auth-google" onclick="googleAuth()"
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
           <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -553,26 +588,226 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 </div>
 
 <script>
+const API = '/api/auth.php?action=';
+
+// ── MODAL ────────────────────────────────────────────────────────────
 function openAuth(){
-  const m=document.getElementById('auth-modal');
-  document.getElementById('modal-logo').src=document.querySelector('.logo-img').src;
-  m.classList.add('open');
-  document.body.style.overflow='hidden';
+  document.getElementById('modal-logo').src = document.querySelector('.logo-img').src;
+  document.getElementById('auth-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 function closeAuth(){
   document.getElementById('auth-modal').classList.remove('open');
-  document.body.style.overflow='';
+  document.body.style.overflow = '';
 }
 function closeAuthOutside(e){
-  if(e.target===document.getElementById('auth-modal')) closeAuth();
+  if(e.target === document.getElementById('auth-modal')) closeAuth();
 }
-function switchTab(tab,btn){
-  document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));
+function switchTab(tab, btn){
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('form-login').classList.toggle('hidden', tab!=='login');
-  document.getElementById('form-register').classList.toggle('hidden', tab!=='register');
+  document.getElementById('form-login').classList.toggle('hidden', tab !== 'login');
+  document.getElementById('form-register').classList.toggle('hidden', tab !== 'register');
+  clearMsgs();
 }
-document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeAuth(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeAuth(); });
+
+function clearMsgs(){
+  ['msg-login','msg-register','msg-forgot'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){ el.className = 'auth-msg'; el.textContent = ''; }
+  });
+}
+function showMsg(id, text, type='error'){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = text;
+  el.className = 'auth-msg ' + type;
+}
+function setLoading(btnId, loading){
+  const btn = document.getElementById(btnId);
+  if(!btn) return;
+  btn.disabled = loading;
+  if(loading) btn.dataset.orig = btn.textContent;
+  btn.textContent = loading ? '…' : (btn.dataset.orig || btn.textContent);
+}
+
+// ── USER STATE ───────────────────────────────────────────────────────
+function setUser(user){
+  document.getElementById('auth-trigger-btn').style.display = 'none';
+  const pill = document.getElementById('user-pill');
+  pill.classList.add('visible');
+  document.getElementById('user-name-label').textContent = user.name;
+  const av = document.getElementById('user-avatar');
+  av.style.background = user.avatar_color || '#4A5340';
+  av.textContent = user.name.trim()[0].toUpperCase();
+}
+function clearUser(){
+  document.getElementById('auth-trigger-btn').style.display = '';
+  document.getElementById('user-pill').classList.remove('visible');
+}
+
+// ── LOGIN ────────────────────────────────────────────────────────────
+async function submitLogin(e){
+  e.preventDefault();
+  clearMsgs();
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  if(!email || !password){ showMsg('msg-login','Vyplň e-mail a heslo'); return; }
+  setLoading('btn-login', true);
+  try {
+    const r = await fetch(API+'login', {
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({email, password})
+    });
+    const d = await r.json();
+    if(!r.ok) throw new Error(d.error || 'Chyba přihlášení');
+    closeAuth();
+    setUser(d.user);
+  } catch(err){
+    showMsg('msg-login', err.message);
+  } finally {
+    setLoading('btn-login', false);
+  }
+}
+
+// ── REGISTER ─────────────────────────────────────────────────────────
+async function submitRegister(e){
+  e.preventDefault();
+  clearMsgs();
+  const name     = document.getElementById('reg-name').value.trim();
+  const email    = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const password_confirm = document.getElementById('reg-confirm').value;
+  if(!name||!email||!password){ showMsg('msg-register','Vyplň všechna pole'); return; }
+  setLoading('btn-register', true);
+  try {
+    const r = await fetch(API+'register', {
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({name, email, password, password_confirm})
+    });
+    const d = await r.json();
+    if(!r.ok) throw new Error(d.error || 'Chyba registrace');
+    showMsg('msg-register', d.message || 'Zkontroluj e-mail.', 'success');
+    document.getElementById('form-register').reset();
+  } catch(err){
+    showMsg('msg-register', err.message);
+  } finally {
+    setLoading('btn-register', false);
+  }
+}
+
+// ── GOOGLE ───────────────────────────────────────────────────────────
+function googleAuth(){
+  window.location.href = API + 'google_redirect';
+}
+
+// ── LOGOUT ───────────────────────────────────────────────────────────
+async function doLogout(){
+  await fetch(API+'logout', {credentials:'include'});
+  clearUser();
+}
+
+// ── FORGOT PASSWORD ──────────────────────────────────────────────────
+function showForgot(){
+  const tabs = document.querySelector('.auth-tabs');
+  const loginForm = document.getElementById('form-login');
+  loginForm.innerHTML = `
+    <div id="msg-forgot" class="auth-msg"></div>
+    <div class="auth-field">
+      <label>E-mail</label>
+      <input id="forgot-email" type="email" placeholder="vas@email.cz" autocomplete="email">
+    </div>
+    <button type="button" id="btn-forgot" class="auth-submit" onclick="submitForgot()">Odeslat reset link</button>
+    <button type="button" onclick="location.reload()" style="background:none;border:none;cursor:pointer;
+      font-size:.68rem;letter-spacing:.1em;color:rgba(255,255,255,.35);text-transform:uppercase;
+      text-align:center;padding:4px;">← Zpět na přihlášení</button>`;
+  tabs.style.display = 'none';
+}
+async function submitForgot(){
+  clearMsgs();
+  const email = document.getElementById('forgot-email').value.trim();
+  if(!email){ showMsg('msg-forgot','Zadej svůj e-mail'); return; }
+  setLoading('btn-forgot', true);
+  try {
+    const r = await fetch(API+'forgot', {
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({email})
+    });
+    const d = await r.json();
+    showMsg('msg-forgot', d.message || 'Odesláno.', r.ok ? 'success' : 'error');
+  } finally {
+    setLoading('btn-forgot', false);
+  }
+}
+
+// ── RESET PASSWORD (z URL ?reset_token=...) ──────────────────────────
+function checkResetToken(){
+  const params = new URLSearchParams(location.search);
+  const token  = params.get('reset_token');
+  const verified = params.get('verified');
+  const authRes  = params.get('auth');
+  if(token){
+    history.replaceState({}, '', location.pathname);
+    openAuth();
+    document.querySelector('.auth-tabs').style.display = 'none';
+    document.getElementById('form-login').innerHTML = `
+      <p style="font-size:.78rem;color:rgba(255,255,255,.6);margin:0 0 16px;">Nastav nové heslo</p>
+      <div id="msg-reset" class="auth-msg"></div>
+      <div class="auth-field"><label>Nové heslo</label>
+        <input id="reset-pass" type="password" placeholder="min. 8 znaků"></div>
+      <div class="auth-field"><label>Potvrzení hesla</label>
+        <input id="reset-confirm" type="password" placeholder="••••••••"></div>
+      <button type="button" id="btn-reset" class="auth-submit"
+              onclick="submitReset('${token}')">Uložit heslo</button>`;
+  }
+  if(verified === '1'){
+    openAuth();
+    showMsg('msg-login','E-mail ověřen. Nyní se můžeš přihlásit.','success');
+    history.replaceState({}, '', location.pathname);
+  }
+  if(authRes === 'success'){
+    history.replaceState({}, '', location.pathname);
+    checkMe();
+  }
+  if(authRes === 'error'){
+    history.replaceState({}, '', location.pathname);
+    openAuth();
+    showMsg('msg-login','Přihlášení přes Google selhalo.','error');
+  }
+}
+async function submitReset(token){
+  const password = document.getElementById('reset-pass').value;
+  const password_confirm = document.getElementById('reset-confirm').value;
+  setLoading('btn-reset', true);
+  try {
+    const r = await fetch(API+'reset', {
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({token, password, password_confirm})
+    });
+    const d = await r.json();
+    if(!r.ok) throw new Error(d.error || 'Chyba');
+    showMsg('msg-reset', 'Heslo změněno! Zavři a přihlaš se.', 'success');
+  } catch(err){
+    showMsg('msg-reset', err.message);
+  } finally {
+    setLoading('btn-reset', false);
+  }
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────
+async function checkMe(){
+  try {
+    const r = await fetch(API+'me', {credentials:'include'});
+    if(r.ok){ const d = await r.json(); setUser(d.user); }
+  } catch(_){}
+}
+checkMe();
+checkResetToken();
 </script>
 
 <script>
