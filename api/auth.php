@@ -124,9 +124,13 @@ function migrate(PDO $pdo): void {
             $indexes[] = $row['Key_name'];
         }
         if (!in_array('uq_inv_email', $indexes)) {
+            // Remove empty-email duplicates first, then add unique index
+            $pdo->exec("DELETE FROM `invitations` WHERE `email` = ''");
             try { $pdo->exec("ALTER TABLE `invitations` ADD UNIQUE KEY `uq_inv_email` (`email`)"); }
-            catch (PDOException $e) { /* duplicate values exist, skip */ }
+            catch (PDOException $e) { /* still duplicates, skip */ }
         }
+        // Always clean up garbage rows from broken migration
+        $pdo->exec("DELETE FROM `invitations` WHERE `email` = ''");
     } catch (PDOException $e) { /* invitations table doesn't exist yet */ }
 }
 
@@ -500,11 +504,12 @@ function handleMembers(): never {
 function handleInvitations(): never {
     requireAuth();
     $rows = db()->query(
-        'SELECT i.email, i.sent_at,
+        "SELECT i.email, i.sent_at,
                 u.id AS user_id, u.name AS user_name, u.created_at AS accepted_at
          FROM invitations i
          LEFT JOIN users u ON u.email = i.email
-         ORDER BY i.sent_at DESC'
+         WHERE i.email != ''
+         ORDER BY i.sent_at DESC"
     )->fetchAll();
 
     $list = [];
