@@ -552,36 +552,121 @@ function handleGoogleCallback(): never {
 
 // ── MEMBERS ───────────────────────────────────────────────────────────
 function handleMembers(): never {
-    requireAuth();
-    $rows = db()->query(
-        'SELECT id, name, email, avatar_color, is_verified, created_at FROM users ORDER BY created_at ASC'
-    )->fetchAll();
+    $me      = requireAuth();
+    $isAdmin = ($me['email'] === PLATFORM_ADMIN_EMAIL);
+
+    if ($isAdmin) {
+        $rows = db()->query(
+            'SELECT id, name, email, avatar_color, is_verified, created_at FROM users ORDER BY created_at ASC'
+        )->fetchAll();
+    } else {
+        // Non-admins see only themselves + members they personally invited
+        $st = db()->prepare(
+            'SELECT id, name, email, avatar_color, is_verified, created_at FROM users WHERE id = ?
+             UNION
+             SELECT u.id, u.name, u.email, u.avatar_color, u.is_verified, u.created_at
+             FROM users u
+             INNER JOIN platform_invitations pi ON pi.email = u.email AND pi.invited_by = ?
+             ORDER BY created_at ASC'
+        );
+        $st->execute([(int)$me['id'], (int)$me['id']]);
+        $rows = $st->fetchAll();
+    }
+
+    // App access per user (app_access table is platform-managed)
+    $accessByUser = [];
+    try {
+        foreach (db()->query('SELECT user_id, app, role FROM app_access ORDER BY app') as $a) {
+            $accessByUser[(int)$a['user_id']][] = ['app' => $a['app'], 'role' => $a['role']];
+        }
+    } catch (PDOException $e) {}
+
+    // Projects per user — try to detect schema dynamically
+    $projectsByUser = [];
+    try {
+        $projCols = array_column(db()->query('SHOW COLUMNS FROM projects')->fetchAll(), 'Field');
+        if (in_array('name', $projCols)) {
+            $appSel = in_array('app', $projCols) ? 'app' : "'' AS app";
+            $st = db()->query("SELECT created_by, name, $appSel FROM projects ORDER BY app, name");
+            foreach ($st->fetchAll() as $p) {
+                $projectsByUser[(int)$p['created_by']][] = [
+                    'app'   => $p['app'] ?: 'neznámá',
+                    'name'  => $p['name'],
+                    'owner' => true,
+                ];
+            }
+        }
+    } catch (PDOException $e) {}
+
+    // Also pick up project_members (non-owner membership) if the table exists
+    try {
+        $pmCols = array_column(db()->query('SHOW COLUMNS FROM project_members')->fetchAll(), 'Field');
+        if (in_array('user_id', $pmCols) && in_array('project_id', $pmCols)) {
+            $projCols = array_column(db()->query('SHOW COLUMNS FROM projects')->fetchAll(), 'Field');
+            if (in_array('name', $projCols)) {
+                $appSel = in_array('app', $projCols) ? 'p.app' : "'' AS app";
+                $st = db()->query(
+                    "SELECT pm.user_id, p.name, $appSel
+                     FROM project_members pm
+                     JOIN projects p ON p.id = pm.project_id
+                     ORDER BY p.app, p.name"
+                );
+                foreach ($st->fetchAll() as $r) {
+                    $uid = (int)$r['user_id'];
+                    $projectsByUser[$uid][] = [
+                        'app'   => $r['app'] ?: 'neznámá',
+                        'name'  => $r['name'],
+                        'owner' => false,
+                    ];
+                }
+            }
+        }
+    } catch (PDOException $e) {}
 
     $members = [];
     foreach ($rows as $u) {
+        $uid = (int)$u['id'];
         $members[] = [
-            'id'           => (int)$u['id'],
+            'id'           => $uid,
             'name'         => $u['name'],
             'email'        => $u['email'],
             'avatar_color' => $u['avatar_color'],
             'is_verified'  => (bool)$u['is_verified'],
             'is_admin'     => ($u['email'] === PLATFORM_ADMIN_EMAIL),
             'created_at'   => substr($u['created_at'], 0, 10),
+            'apps'         => $accessByUser[$uid] ?? [],
+            'projects'     => $projectsByUser[$uid] ?? [],
         ];
     }
     json_out(['members' => $members]);
 }
 
 function handleInvitations(): never {
-    requireAuth();
-    $rows = db()->query(
-        "SELECT i.email, i.sent_at,
-                u.id AS user_id, u.name AS user_name, u.created_at AS accepted_at
-         FROM platform_invitations i
-         LEFT JOIN users u ON u.email = i.email
-         WHERE i.email != ''
-         ORDER BY i.sent_at DESC"
-    )->fetchAll();
+    $me      = requireAuth();
+    $isAdmin = ($me['email'] === PLATFORM_ADMIN_EMAIL);
+
+    if ($isAdmin) {
+        $st = db()->query(
+            "SELECT i.email, i.sent_at,
+                    u.id AS user_id, u.name AS user_name, u.created_at AS accepted_at
+             FROM platform_invitations i
+             LEFT JOIN users u ON u.email = i.email
+             WHERE i.email != ''
+             ORDER BY i.sent_at DESC"
+        );
+        $rows = $st->fetchAll();
+    } else {
+        $st = db()->prepare(
+            "SELECT i.email, i.sent_at,
+                    u.id AS user_id, u.name AS user_name, u.created_at AS accepted_at
+             FROM platform_invitations i
+             LEFT JOIN users u ON u.email = i.email
+             WHERE i.email != '' AND i.invited_by = ?
+             ORDER BY i.sent_at DESC"
+        );
+        $st->execute([(int)$me['id']]);
+        $rows = $st->fetchAll();
+    }
 
     $list = [];
     foreach ($rows as $r) {

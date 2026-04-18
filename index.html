@@ -820,30 +820,82 @@ async function loadMembers(){
 function renderMembers(members){
   const tb = document.getElementById('members-tbody');
   if(!members || !members.length){
-    tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,.3);padding:20px 0;">Žádní členové</td></tr>';
+    tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,.3);padding:20px 0;">Žádní členové</td></tr>';
     return;
   }
-  // Show delete column header only for admins
   const thDel = document.getElementById('th-del');
-  if(thDel) thDel.textContent = _isAdmin ? '' : '';
+  if(thDel) thDel.textContent = '';
 
   tb.innerHTML = members.map(m => {
     const init = (m.name||'?').trim()[0].toUpperCase();
     const badge = m.is_verified
       ? `<span class="verified-badge yes">✓ Ověřen</span>`
       : `<span class="verified-badge no">✗ Neověřen</span>`;
-    const adminBadge = m.is_admin ? `<span style="font-size:.55rem;letter-spacing:.1em;color:var(--gold);opacity:.6;margin-left:6px;vertical-align:middle;">ADMIN</span>` : '';
-    const delBtn = (_isAdmin && m.id !== _meId)
-      ? `<button class="del-btn" onclick="deleteMember(${m.id},'${esc(m.name||m.email)}')" title="Smazat člena">✕</button>`
+    const adminBadge = m.is_admin
+      ? `<span style="font-size:.55rem;letter-spacing:.1em;color:var(--gold);opacity:.6;margin-left:6px;vertical-align:middle;">ADMIN</span>`
       : '';
-    return `<tr>
-      <td><span class="member-av" style="background:${m.avatar_color||'#4A5340'}">${init}</span><span class="member-name">${esc(m.name||'—')}</span>${adminBadge}</td>
+    const delBtn = (_isAdmin && m.id !== _meId)
+      ? `<button class="del-btn" onclick="event.stopPropagation();deleteMember(${m.id},'${esc(m.name||m.email)}')" title="Smazat člena">✕</button>`
+      : '';
+
+    // App access pills
+    const apps = m.apps || [];
+    const appPills = apps.map(a =>
+      `<span style="display:inline-block;padding:2px 8px;margin:2px 2px 0 0;
+              font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;
+              background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.28);
+              color:rgba(201,168,76,0.85);">${esc(a.app)} <span style="opacity:.55;font-size:.55rem;">${esc(a.role)}</span></span>`
+    ).join('');
+
+    // Projects grouped by app
+    const projs = m.projects || [];
+    let projHtml = '';
+    if (projs.length) {
+      const byApp = {};
+      projs.forEach(p => { (byApp[p.app] = byApp[p.app]||[]).push(p); });
+      projHtml = '<div style="margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.05);">'
+        + Object.entries(byApp).map(([app, ps]) =>
+          `<div style="margin-bottom:4px;">
+            <span style="font-size:.57rem;letter-spacing:.14em;text-transform:uppercase;
+                         color:rgba(201,168,76,0.45);margin-right:6px;">${esc(app)}</span>`
+          + ps.map(p =>
+              `<span style="font-size:.68rem;color:rgba(255,255,255,.45);margin-right:10px;">
+                ${esc(p.name)}${p.owner ? '' : ' <span style="opacity:.45;font-size:.6rem;">(člen)</span>'}
+              </span>`
+            ).join('')
+          + `</div>`
+        ).join('')
+        + '</div>';
+    }
+
+    const hasDetail = apps.length || projs.length;
+    const chevron = hasDetail
+      ? `<span class="m-chevron" id="chev-${m.id}" style="font-size:.5rem;opacity:.3;margin-left:5px;vertical-align:middle;">▶</span>`
+      : '';
+    const detailRow = hasDetail ? `<tr id="detail-${m.id}" style="display:none;">
+      <td colspan="5" style="padding:6px 16px 12px 52px;background:rgba(0,0,0,0.18);border-top:none;">
+        ${appPills || '<span style="font-size:.68rem;color:rgba(255,255,255,.2);">Žádný přístup k aplikacím</span>'}
+        ${projHtml}
+      </td>
+    </tr>` : '';
+
+    return `<tr class="member-row" onclick="toggleMemberDetail(${m.id},${hasDetail?'true':'false'})" style="cursor:${hasDetail?'pointer':'default'};">
+      <td><span class="member-av" style="background:${m.avatar_color||'#4A5340'}">${init}</span><span class="member-name">${esc(m.name||'—')}</span>${adminBadge}${chevron}</td>
       <td><span class="member-email">${esc(m.email)}</span></td>
       <td>${badge}</td>
       <td style="color:rgba(255,255,255,.4);font-size:.72rem;">${m.created_at}</td>
       <td>${delBtn}</td>
-    </tr>`;
+    </tr>${detailRow}`;
   }).join('');
+}
+function toggleMemberDetail(uid, has){
+  if(!has) return;
+  const row = document.getElementById('detail-'+uid);
+  const chev = document.getElementById('chev-'+uid);
+  if(!row) return;
+  const open = row.style.display === '';
+  row.style.display = open ? 'none' : '';
+  if(chev) chev.textContent = open ? '▶' : '▼';
 }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
