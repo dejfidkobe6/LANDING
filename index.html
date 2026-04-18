@@ -840,17 +840,22 @@ function renderMembers(members){
       : '';
 
     // App access pills — always visible under the name
+    const APPS = ['board','plans','time','organs','cad'];
     const apps = m.apps || [];
-    const appPills = apps.length
-      ? `<div style="margin-top:4px;">`
-        + apps.map(a =>
-            `<span style="display:inline-block;padding:1px 7px;margin:1px 2px 0 0;
-                    font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;
-                    background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);
-                    color:rgba(201,168,76,0.8);">${esc(a.app)}&thinsp;<span style="opacity:.5;">${esc(a.role)}</span></span>`
-          ).join('')
-        + `</div>`
-      : '';
+    const grantedApps = Object.fromEntries(apps.map(a => [a.app, a.role]));
+    const appPills = `<div style="margin-top:5px;">` + APPS.map(appKey => {
+      const active = appKey in grantedApps;
+      const role   = grantedApps[appKey] || '';
+      const activeStyle = active
+        ? 'background:rgba(201,168,76,0.15);border-color:rgba(201,168,76,0.5);color:rgba(201,168,76,0.9);'
+        : 'background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.1);color:rgba(255,255,255,0.2);';
+      const clickAttr = _isAdmin && m.id !== _meId
+        ? `onclick="toggleAppAccess(${m.id},'${appKey}',${active})" style="cursor:pointer;${activeStyle}`
+        : `style="${activeStyle}`;
+      return `<span ${clickAttr};display:inline-block;padding:2px 8px;margin:1px 2px 0 0;
+              font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;
+              border:1px solid;transition:all .2s;" title="${active?'Odebrat přístup':'Přidat přístup'}">${appKey}${active?'&thinsp;<span style="opacity:.45;font-size:.52rem;">'+esc(role)+'</span>':''}</span>`;
+    }).join('') + `</div>`;
 
     // Projects grouped by app — in expandable detail row
     const projs = m.projects || [];
@@ -908,6 +913,18 @@ function toggleMemberDetail(uid){
   const open = row.style.display !== 'none' && row.style.display !== '';
   row.style.display  = open ? 'none' : '';
   if(chev) chev.textContent = open ? '▶' : '▼';
+}
+async function toggleAppAccess(uid, app, currentlyGranted){
+  try {
+    const r = await fetch(API+'set_app_access', {
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ user_id: uid, app, granted: !currentlyGranted, role: 'clen' })
+    });
+    const d = await r.json();
+    if(!r.ok) throw new Error(d.error||'Chyba');
+    loadMembers();
+  } catch(e){ alert(e.message); }
 }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
