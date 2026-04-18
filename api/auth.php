@@ -552,10 +552,26 @@ function handleGoogleCallback(): never {
 
 // ── MEMBERS ───────────────────────────────────────────────────────────
 function handleMembers(): never {
-    requireAuth();
-    $rows = db()->query(
-        'SELECT id, name, email, avatar_color, is_verified, created_at FROM users ORDER BY created_at ASC'
-    )->fetchAll();
+    $me      = requireAuth();
+    $isAdmin = ($me['email'] === PLATFORM_ADMIN_EMAIL);
+
+    if ($isAdmin) {
+        $rows = db()->query(
+            'SELECT id, name, email, avatar_color, is_verified, created_at FROM users ORDER BY created_at ASC'
+        )->fetchAll();
+    } else {
+        // Non-admins see only themselves + members they personally invited
+        $st = db()->prepare(
+            'SELECT id, name, email, avatar_color, is_verified, created_at FROM users WHERE id = ?
+             UNION
+             SELECT u.id, u.name, u.email, u.avatar_color, u.is_verified, u.created_at
+             FROM users u
+             INNER JOIN platform_invitations pi ON pi.email = u.email AND pi.invited_by = ?
+             ORDER BY created_at ASC'
+        );
+        $st->execute([(int)$me['id'], (int)$me['id']]);
+        $rows = $st->fetchAll();
+    }
 
     // App access per user (app_access table is platform-managed)
     $accessByUser = [];
@@ -626,15 +642,31 @@ function handleMembers(): never {
 }
 
 function handleInvitations(): never {
-    requireAuth();
-    $rows = db()->query(
-        "SELECT i.email, i.sent_at,
-                u.id AS user_id, u.name AS user_name, u.created_at AS accepted_at
-         FROM platform_invitations i
-         LEFT JOIN users u ON u.email = i.email
-         WHERE i.email != ''
-         ORDER BY i.sent_at DESC"
-    )->fetchAll();
+    $me      = requireAuth();
+    $isAdmin = ($me['email'] === PLATFORM_ADMIN_EMAIL);
+
+    if ($isAdmin) {
+        $st = db()->query(
+            "SELECT i.email, i.sent_at,
+                    u.id AS user_id, u.name AS user_name, u.created_at AS accepted_at
+             FROM platform_invitations i
+             LEFT JOIN users u ON u.email = i.email
+             WHERE i.email != ''
+             ORDER BY i.sent_at DESC"
+        );
+        $rows = $st->fetchAll();
+    } else {
+        $st = db()->prepare(
+            "SELECT i.email, i.sent_at,
+                    u.id AS user_id, u.name AS user_name, u.created_at AS accepted_at
+             FROM platform_invitations i
+             LEFT JOIN users u ON u.email = i.email
+             WHERE i.email != '' AND i.invited_by = ?
+             ORDER BY i.sent_at DESC"
+        );
+        $st->execute([(int)$me['id']]);
+        $rows = $st->fetchAll();
+    }
 
     $list = [];
     foreach ($rows as $r) {
