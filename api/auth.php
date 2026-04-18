@@ -603,7 +603,8 @@ function handleMembers(): never {
                 foreach (['board','plans','plan','time','organs','cad'] as $kw) {
                     if (stripos($srcTable, $kw) !== false) return ($kw === 'plan' ? 'plans' : $kw);
                 }
-                return '–';
+                // projects tabulka bez app sloupce — default na 'plans' (hlavní appka)
+                return $srcTable === 'projects' ? 'plans' : '–';
             };
 
             // Owner projects — keyed by lowercase name to deduplicate
@@ -621,7 +622,7 @@ function handleMembers(): never {
                 ];
             }
 
-            // Find all tables that have project_id + a user/member column
+            // 1) Tables with project_id + direct user_id/member_id column
             $memberTables = db()->query(
                 "SELECT c1.TABLE_NAME
                  FROM INFORMATION_SCHEMA.COLUMNS c1
@@ -629,15 +630,17 @@ function handleMembers(): never {
                    ON c1.TABLE_NAME = c2.TABLE_NAME AND c1.TABLE_SCHEMA = c2.TABLE_SCHEMA
                  WHERE c1.TABLE_SCHEMA = DATABASE()
                    AND c1.COLUMN_NAME = 'project_id'
-                   AND c2.COLUMN_NAME IN ('user_id','member_id','invited_user_id')
+                   AND c2.COLUMN_NAME IN ('user_id','member_id','invited_user_id','uid','person_id')
                    AND c1.TABLE_NAME NOT IN ('projects','platform_invitations','invitations')"
             )->fetchAll(PDO::FETCH_COLUMN);
 
             foreach ($memberTables as $tbl) {
                 try {
                     $tCols   = array_column(db()->query("SHOW COLUMNS FROM `$tbl`")->fetchAll(), 'Field');
-                    $userCol = in_array('user_id', $tCols)    ? 'user_id'
-                             : (in_array('member_id', $tCols) ? 'member_id' : 'invited_user_id');
+                    $userCol = in_array('user_id', $tCols)      ? 'user_id'
+                             : (in_array('member_id', $tCols)   ? 'member_id'
+                             : (in_array('uid', $tCols)         ? 'uid'
+                             : (in_array('person_id', $tCols)   ? 'person_id' : 'invited_user_id')));
                     $rows2 = db()->query(
                         "SELECT m.$userCol AS uid, p.id, p.$nameCol AS name, p.$appExpr AS app
                          FROM `$tbl` m
@@ -647,7 +650,6 @@ function handleMembers(): never {
                     foreach ($rows2 as $r) {
                         $uid = (int)$r['uid'];
                         $key = strtolower(trim($r['name']));
-                        // Owned entry wins; otherwise record membership
                         if (!isset($projectsByUser[$uid][$key])) {
                             $projectsByUser[$uid][$key] = [
                                 'app'   => $resolveApp(trim((string)$r['app']), $tbl),
@@ -655,12 +657,37 @@ function handleMembers(): never {
                                 'owner' => false,
                             ];
                         } elseif ($projectsByUser[$uid][$key]['app'] === '–') {
-                            // Upgrade app label if we now know the source
                             $projectsByUser[$uid][$key]['app'] = $resolveApp(trim((string)$r['app']), $tbl);
                         }
                     }
                 } catch (PDOException $e) {}
             }
+
+            // 2) invitations table (Plans app) — users invited by email to projects
+            try {
+                $invCols = array_column(db()->query('SHOW COLUMNS FROM `invitations`')->fetchAll(), 'Field');
+                if (in_array('project_id', $invCols) && in_array('email', $invCols)) {
+                    $rows3 = db()->query(
+                        "SELECT u.id AS uid, p.id, p.$nameCol AS name
+                         FROM invitations i
+                         JOIN users u ON u.email = i.email
+                         JOIN projects p ON p.id = i.project_id"
+                    )->fetchAll();
+                    foreach ($rows3 as $r) {
+                        $uid = (int)$r['uid'];
+                        $key = strtolower(trim($r['name']));
+                        if (!isset($projectsByUser[$uid][$key])) {
+                            $projectsByUser[$uid][$key] = [
+                                'app'   => 'plans',
+                                'name'  => $r['name'],
+                                'owner' => false,
+                            ];
+                        } elseif ($projectsByUser[$uid][$key]['app'] === '–') {
+                            $projectsByUser[$uid][$key]['app'] = 'plans';
+                        }
+                    }
+                }
+            } catch (PDOException $e) {}
         }
     } catch (PDOException $e) {}
 
