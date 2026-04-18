@@ -586,30 +586,41 @@ function handleMembers(): never {
     $projectsByUser = [];
     try {
         $projCols = array_column(db()->query('SHOW COLUMNS FROM projects')->fetchAll(), 'Field');
-        $nameCol  = in_array('name', $projCols)         ? 'name'
-                  : (in_array('title', $projCols)       ? 'title'
-                  : (in_array('project_name', $projCols)? 'project_name' : null));
+        $nameCol  = in_array('name', $projCols)          ? 'name'
+                  : (in_array('title', $projCols)        ? 'title'
+                  : (in_array('project_name', $projCols) ? 'project_name' : null));
 
         if ($nameCol) {
-            // Try to determine app from related tables or column
-            $appExpr = in_array('app', $projCols)      ? 'app'
+            $appCol  = in_array('app', $projCols)       ? 'app'
                      : (in_array('app_name', $projCols) ? 'app_name'
-                     : (in_array('type', $projCols)     ? 'type'
-                     : "'' "));
+                     : (in_array('type', $projCols)     ? 'type' : null));
+            $appExpr = $appCol ? $appCol : "''";
 
-            // Owner projects (DISTINCT to avoid duplicates)
+            // Helper: derive app label from table name or value
+            $resolveApp = function(string $raw, string $srcTable): string {
+                if ($raw !== '') return $raw;
+                foreach (['board','plans','plan','time','organs','cad'] as $kw) {
+                    if (stripos($srcTable, $kw) !== false) return ($kw === 'plan' ? 'plans' : $kw);
+                }
+                return '–';
+            };
+
+            // Owner projects — keyed by lowercase name to deduplicate
             $owned = db()->query(
-                "SELECT DISTINCT created_by AS uid, id, $nameCol AS name, $appExpr AS app
+                "SELECT created_by AS uid, id, $nameCol AS name, $appExpr AS app
                  FROM projects ORDER BY $nameCol"
             )->fetchAll();
             foreach ($owned as $p) {
-                $projectsByUser[(int)$p['uid']][$p['id']] = [
-                    'app'  => trim($p['app']) ?: '–',
-                    'name' => $p['name'],
+                $key = strtolower(trim($p['name']));
+                $uid = (int)$p['uid'];
+                $projectsByUser[$uid][$key] = [
+                    'app'   => $resolveApp(trim((string)$p['app']), 'projects'),
+                    'name'  => $p['name'],
+                    'owner' => true,
                 ];
             }
 
-            // Find all tables that have both project_id and a user column
+            // Find all tables that have project_id + a user/member column
             $memberTables = db()->query(
                 "SELECT c1.TABLE_NAME
                  FROM INFORMATION_SCHEMA.COLUMNS c1
@@ -624,30 +635,37 @@ function handleMembers(): never {
             foreach ($memberTables as $tbl) {
                 try {
                     $tCols   = array_column(db()->query("SHOW COLUMNS FROM `$tbl`")->fetchAll(), 'Field');
-                    $userCol = in_array('user_id', $tCols)           ? 'user_id'
-                             : (in_array('member_id', $tCols)        ? 'member_id' : 'invited_user_id');
-                    $members2 = db()->query(
-                        "SELECT DISTINCT m.$userCol AS uid, p.id, p.$nameCol AS name, p.$appExpr AS app
+                    $userCol = in_array('user_id', $tCols)    ? 'user_id'
+                             : (in_array('member_id', $tCols) ? 'member_id' : 'invited_user_id');
+                    $rows2 = db()->query(
+                        "SELECT m.$userCol AS uid, p.id, p.$nameCol AS name, p.$appExpr AS app
                          FROM `$tbl` m
                          JOIN projects p ON p.id = m.project_id
                          ORDER BY p.$nameCol"
                     )->fetchAll();
-                    foreach ($members2 as $r) {
+                    foreach ($rows2 as $r) {
                         $uid = (int)$r['uid'];
-                        // Don't overwrite owned projects, just add new ones
-                        $projectsByUser[$uid][$r['id']] = $projectsByUser[$uid][$r['id']] ?? [
-                            'app'  => trim($r['app']) ?: '–',
-                            'name' => $r['name'],
-                        ];
+                        $key = strtolower(trim($r['name']));
+                        // Owned entry wins; otherwise record membership
+                        if (!isset($projectsByUser[$uid][$key])) {
+                            $projectsByUser[$uid][$key] = [
+                                'app'   => $resolveApp(trim((string)$r['app']), $tbl),
+                                'name'  => $r['name'],
+                                'owner' => false,
+                            ];
+                        } elseif ($projectsByUser[$uid][$key]['app'] === '–') {
+                            // Upgrade app label if we now know the source
+                            $projectsByUser[$uid][$key]['app'] = $resolveApp(trim((string)$r['app']), $tbl);
+                        }
                     }
                 } catch (PDOException $e) {}
             }
         }
     } catch (PDOException $e) {}
 
-    // Flatten projects (keyed by id → deduplicated)
-    foreach ($projectsByUser as $uid => $projMap) {
-        $projectsByUser[$uid] = array_values($projMap);
+    // Flatten (deduplicated by lowercase name)
+    foreach ($projectsByUser as $uid => $map) {
+        $projectsByUser[$uid] = array_values($map);
     }
 
     $members = [];
