@@ -472,7 +472,13 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
         <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Správa členů
       </span>
-      <span class="members-chevron">▼</span>
+      <span style="display:flex;align-items:center;gap:10px;">
+        <button id="db-info-btn" onclick="event.stopPropagation();loadDbInfo()"
+                style="display:none;background:none;border:1px solid rgba(255,255,255,.15);
+                       color:rgba(255,255,255,.3);font-size:.55rem;letter-spacing:.1em;
+                       text-transform:uppercase;padding:3px 8px;cursor:pointer;">DB info</button>
+        <span class="members-chevron">▼</span>
+      </span>
     </div>
     <div class="members-body">
       <table class="members-table">
@@ -506,6 +512,18 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
         <thead><tr><th>E-mail</th><th>Odesláno</th><th>Stav</th><th>Přijato</th></tr></thead>
         <tbody id="inv-tbody"></tbody>
       </table>
+    </div>
+    <div id="db-info-wrap" style="display:none;padding:10px 22px 14px;
+         border-top:1px solid rgba(255,255,255,0.07);">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:0.6rem;letter-spacing:0.2em;
+                  text-transform:uppercase;color:var(--gold);opacity:0.6;margin-bottom:8px;">
+        DB tabulky (diagnostika)
+        <button onclick="document.getElementById('db-info-wrap').style.display='none'"
+                style="float:right;background:none;border:none;color:rgba(255,255,255,.3);
+                       cursor:pointer;font-size:.9rem;line-height:1;">✕</button>
+      </div>
+      <div id="db-info-content" style="font-size:.65rem;color:rgba(255,255,255,.4);
+           font-family:monospace;line-height:1.7;"></div>
     </div>
   </div>
 
@@ -780,7 +798,24 @@ function setUser(user){
   const av = document.getElementById('user-avatar');
   av.style.background = user.avatar_color || '#4A5340';
   av.textContent = (user.name||'?').trim()[0].toUpperCase();
+  const dbBtn = document.getElementById('db-info-btn');
+  if(dbBtn) dbBtn.style.display = _isAdmin ? '' : 'none';
   showMembersPanel();
+}
+async function loadDbInfo(){
+  const wrap = document.getElementById('db-info-wrap');
+  const content = document.getElementById('db-info-content');
+  wrap.style.display = 'block';
+  content.textContent = 'Načítám…';
+  try {
+    const r = await fetch(API+'db_info', {credentials:'include'});
+    const d = await r.json();
+    if(!r.ok){ content.textContent = d.error||'Chyba'; return; }
+    content.innerHTML = Object.entries(d.tables).map(([tbl, cols]) =>
+      `<div style="margin-bottom:4px;"><span style="color:rgba(201,168,76,0.7);">${esc(tbl)}</span>
+       <span style="opacity:.5;margin-left:6px;">${cols.map(esc).join(', ')}</span></div>`
+    ).join('');
+  } catch(e){ content.textContent = e.message; }
 }
 function clearUser(){
   document.getElementById('auth-trigger-btn').style.display = '';
@@ -849,7 +884,7 @@ function renderMembers(members){
       const activeStyle = active
         ? 'background:rgba(201,168,76,0.15);border-color:rgba(201,168,76,0.5);color:rgba(201,168,76,0.9);'
         : 'background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.1);color:rgba(255,255,255,0.2);';
-      const clickAttr = _isAdmin && m.id !== _meId
+      const clickAttr = _isAdmin
         ? `onclick="toggleAppAccess(${m.id},'${appKey}',${active})" style="cursor:pointer;${activeStyle}`
         : `style="${activeStyle}`;
       return `<span ${clickAttr};display:inline-block;padding:2px 8px;margin:1px 2px 0 0;

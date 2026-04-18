@@ -287,6 +287,7 @@ match ($action) {
     'cancel_invite'   => handleCancelInvite(),
     'delete_member'   => handleDeleteMember(),
     'set_app_access'  => handleSetAppAccess(),
+    'db_info'         => handleDbInfo(),
     default           => json_out(['error' => 'Neznámá akce'], 404),
 };
 
@@ -966,4 +967,16 @@ function handleSetAppAccess(): never {
             ->execute([$uid, $app]);
     }
     json_out(['success' => true]);
+}
+
+function handleDbInfo(): never {
+    $me = requireAuth();
+    if ($me['email'] !== PLATFORM_ADMIN_EMAIL) json_out(['error' => 'Nedostatečná oprávnění'], 403);
+
+    $tables = [];
+    foreach (db()->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN) as $tbl) {
+        $cols = array_column(db()->query("SHOW COLUMNS FROM `$tbl`")->fetchAll(), 'Field');
+        $tables[$tbl] = $cols;
+    }
+    json_out(['tables' => $tables]);
 }
