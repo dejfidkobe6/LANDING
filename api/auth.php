@@ -286,6 +286,7 @@ match ($action) {
     'invite'          => handleInvite(),
     'cancel_invite'   => handleCancelInvite(),
     'delete_member'   => handleDeleteMember(),
+    'set_app_access'  => handleSetAppAccess(),
     default           => json_out(['error' => 'Neznámá akce'], 404),
 };
 
@@ -899,6 +900,32 @@ function handleDeleteMember(): never {
         $pdo->prepare('DELETE FROM users WHERE id = ?')->execute([$uid]);
     } finally {
         $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
+    }
+    json_out(['success' => true]);
+}
+
+function handleSetAppAccess(): never {
+    $me = requireAuth();
+    if ($me['email'] !== PLATFORM_ADMIN_EMAIL) json_out(['error' => 'Nedostatečná oprávnění'], 403);
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') json_out(['error' => 'POST required'], 405);
+
+    $b       = body();
+    $uid     = (int)($b['user_id'] ?? 0);
+    $app     = strtolower(trim($b['app'] ?? ''));
+    $role    = trim($b['role'] ?? 'clen');
+    $granted = (bool)($b['granted'] ?? false);
+
+    $allowed = ['board', 'plans', 'time', 'organs', 'cad'];
+    if (!$uid || !in_array($app, $allowed, true)) json_out(['error' => 'Neplatné parametry'], 422);
+
+    if ($granted) {
+        db()->prepare(
+            'INSERT INTO app_access (user_id, app, role) VALUES (?, ?, ?)
+             ON DUPLICATE KEY UPDATE role = VALUES(role)'
+        )->execute([$uid, $app, $role]);
+    } else {
+        db()->prepare('DELETE FROM app_access WHERE user_id = ? AND app = ?')
+            ->execute([$uid, $app]);
     }
     json_out(['success' => true]);
 }
