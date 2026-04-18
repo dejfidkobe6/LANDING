@@ -582,53 +582,73 @@ function handleMembers(): never {
         }
     } catch (PDOException $e) {}
 
-    // Projects per user — try to detect schema dynamically
+    // Projects per user — detect schema + membership tables via INFORMATION_SCHEMA
     $projectsByUser = [];
     try {
         $projCols = array_column(db()->query('SHOW COLUMNS FROM projects')->fetchAll(), 'Field');
-        $nameCol = in_array('name', $projCols) ? 'name'
-                 : (in_array('title', $projCols) ? 'title'
-                 : (in_array('project_name', $projCols) ? 'project_name' : null));
+        $nameCol  = in_array('name', $projCols)         ? 'name'
+                  : (in_array('title', $projCols)       ? 'title'
+                  : (in_array('project_name', $projCols)? 'project_name' : null));
+
         if ($nameCol) {
-            $appSel  = in_array('app', $projCols)      ? 'app'
+            // Try to determine app from related tables or column
+            $appExpr = in_array('app', $projCols)      ? 'app'
                      : (in_array('app_name', $projCols) ? 'app_name'
-                     : (in_array('type', $projCols)     ? 'type' : null));
-            $appExpr = $appSel ? $appSel : "'' AS app";
-            $st = db()->query("SELECT created_by, $nameCol AS name, $appExpr FROM projects ORDER BY app, $nameCol");
-            foreach ($st->fetchAll() as $p) {
-                $projectsByUser[(int)$p['created_by']][] = [
-                    'app'   => $p['app'] ?: '–',
-                    'name'  => $p['name'],
-                    'owner' => true,
+                     : (in_array('type', $projCols)     ? 'type'
+                     : "'' "));
+
+            // Owner projects (DISTINCT to avoid duplicates)
+            $owned = db()->query(
+                "SELECT DISTINCT created_by AS uid, id, $nameCol AS name, $appExpr AS app
+                 FROM projects ORDER BY $nameCol"
+            )->fetchAll();
+            foreach ($owned as $p) {
+                $projectsByUser[(int)$p['uid']][$p['id']] = [
+                    'app'  => trim($p['app']) ?: '–',
+                    'name' => $p['name'],
                 ];
+            }
+
+            // Find all tables that have both project_id and a user column
+            $memberTables = db()->query(
+                "SELECT c1.TABLE_NAME
+                 FROM INFORMATION_SCHEMA.COLUMNS c1
+                 JOIN INFORMATION_SCHEMA.COLUMNS c2
+                   ON c1.TABLE_NAME = c2.TABLE_NAME AND c1.TABLE_SCHEMA = c2.TABLE_SCHEMA
+                 WHERE c1.TABLE_SCHEMA = DATABASE()
+                   AND c1.COLUMN_NAME = 'project_id'
+                   AND c2.COLUMN_NAME IN ('user_id','member_id','invited_user_id')
+                   AND c1.TABLE_NAME NOT IN ('projects','platform_invitations','invitations')"
+            )->fetchAll(PDO::FETCH_COLUMN);
+
+            foreach ($memberTables as $tbl) {
+                try {
+                    $tCols   = array_column(db()->query("SHOW COLUMNS FROM `$tbl`")->fetchAll(), 'Field');
+                    $userCol = in_array('user_id', $tCols)           ? 'user_id'
+                             : (in_array('member_id', $tCols)        ? 'member_id' : 'invited_user_id');
+                    $members2 = db()->query(
+                        "SELECT DISTINCT m.$userCol AS uid, p.id, p.$nameCol AS name, p.$appExpr AS app
+                         FROM `$tbl` m
+                         JOIN projects p ON p.id = m.project_id
+                         ORDER BY p.$nameCol"
+                    )->fetchAll();
+                    foreach ($members2 as $r) {
+                        $uid = (int)$r['uid'];
+                        // Don't overwrite owned projects, just add new ones
+                        $projectsByUser[$uid][$r['id']] = $projectsByUser[$uid][$r['id']] ?? [
+                            'app'  => trim($r['app']) ?: '–',
+                            'name' => $r['name'],
+                        ];
+                    }
+                } catch (PDOException $e) {}
             }
         }
     } catch (PDOException $e) {}
 
-    // Also pick up project_members (non-owner membership) if the table exists
-    try {
-        $pmCols = array_column(db()->query('SHOW COLUMNS FROM project_members')->fetchAll(), 'Field');
-        if (in_array('user_id', $pmCols) && in_array('project_id', $pmCols)) {
-            $projCols = array_column(db()->query('SHOW COLUMNS FROM projects')->fetchAll(), 'Field');
-            if (in_array('name', $projCols)) {
-                $appSel = in_array('app', $projCols) ? 'p.app' : "'' AS app";
-                $st = db()->query(
-                    "SELECT pm.user_id, p.name, $appSel
-                     FROM project_members pm
-                     JOIN projects p ON p.id = pm.project_id
-                     ORDER BY p.app, p.name"
-                );
-                foreach ($st->fetchAll() as $r) {
-                    $uid = (int)$r['user_id'];
-                    $projectsByUser[$uid][] = [
-                        'app'   => $r['app'] ?: 'neznámá',
-                        'name'  => $r['name'],
-                        'owner' => false,
-                    ];
-                }
-            }
-        }
-    } catch (PDOException $e) {}
+    // Flatten projects (keyed by id → deduplicated)
+    foreach ($projectsByUser as $uid => $projMap) {
+        $projectsByUser[$uid] = array_values($projMap);
+    }
 
     $members = [];
     foreach ($rows as $u) {
