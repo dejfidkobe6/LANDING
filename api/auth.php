@@ -622,72 +622,70 @@ function handleMembers(): never {
                 ];
             }
 
-            // 1) Tables with project_id + direct user_id/member_id column
-            $memberTables = db()->query(
-                "SELECT c1.TABLE_NAME
-                 FROM INFORMATION_SCHEMA.COLUMNS c1
-                 JOIN INFORMATION_SCHEMA.COLUMNS c2
-                   ON c1.TABLE_NAME = c2.TABLE_NAME AND c1.TABLE_SCHEMA = c2.TABLE_SCHEMA
-                 WHERE c1.TABLE_SCHEMA = DATABASE()
-                   AND c1.COLUMN_NAME = 'project_id'
-                   AND c2.COLUMN_NAME IN ('user_id','member_id','invited_user_id','uid','person_id')
-                   AND c1.TABLE_NAME NOT IN ('projects','platform_invitations','invitations')"
+            // Find ALL tables with project_id column (except projects itself)
+            $tablesWithProjId = db()->query(
+                "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE() AND COLUMN_NAME = 'project_id'
+                 AND TABLE_NAME != 'projects'"
             )->fetchAll(PDO::FETCH_COLUMN);
 
-            foreach ($memberTables as $tbl) {
+            $skipCols = ['id','project_id','created_at','updated_at','sent_at','deleted_at','role','status','type','email'];
+
+            foreach ($tablesWithProjId as $tbl) {
                 try {
-                    $tCols   = array_column(db()->query("SHOW COLUMNS FROM `$tbl`")->fetchAll(), 'Field');
-                    $userCol = in_array('user_id', $tCols)      ? 'user_id'
-                             : (in_array('member_id', $tCols)   ? 'member_id'
-                             : (in_array('uid', $tCols)         ? 'uid'
-                             : (in_array('person_id', $tCols)   ? 'person_id' : 'invited_user_id')));
-                    $rows2 = db()->query(
-                        "SELECT m.$userCol AS uid, p.id, p.$nameCol AS name, p.$appExpr AS app
-                         FROM `$tbl` m
-                         JOIN projects p ON p.id = m.project_id
-                         ORDER BY p.$nameCol"
-                    )->fetchAll();
-                    foreach ($rows2 as $r) {
-                        $uid = (int)$r['uid'];
-                        $key = strtolower(trim($r['name']));
-                        if (!isset($projectsByUser[$uid][$key])) {
-                            $projectsByUser[$uid][$key] = [
-                                'app'   => $resolveApp(trim((string)$r['app']), $tbl),
-                                'name'  => $r['name'],
-                                'owner' => false,
-                            ];
-                        } elseif ($projectsByUser[$uid][$key]['app'] === '–') {
-                            $projectsByUser[$uid][$key]['app'] = $resolveApp(trim((string)$r['app']), $tbl);
-                        }
+                    $tCols = db()->query("SHOW COLUMNS FROM `$tbl`")->fetchAll();
+
+                    // Try every INT column as potential user reference (join with users.id)
+                    foreach ($tCols as $col) {
+                        if (in_array($col['Field'], $skipCols)) continue;
+                        if (!preg_match('/^(tiny|small|medium|big)?int/i', $col['Type'])) continue;
+
+                        $c = $col['Field'];
+                        try {
+                            $rows2 = db()->query(
+                                "SELECT m.$c AS uid, p.id, p.$nameCol AS name, p.$appExpr AS app
+                                 FROM `$tbl` m
+                                 JOIN projects p ON p.id = m.project_id
+                                 JOIN users u ON u.id = m.$c
+                                 ORDER BY p.$nameCol"
+                            )->fetchAll();
+                            foreach ($rows2 as $r) {
+                                $uid = (int)$r['uid'];
+                                $key = strtolower(trim($r['name']));
+                                $app = $resolveApp(trim((string)$r['app']), $tbl);
+                                if (!isset($projectsByUser[$uid][$key])) {
+                                    $projectsByUser[$uid][$key] = ['app' => $app, 'name' => $r['name'], 'owner' => false];
+                                } elseif ($projectsByUser[$uid][$key]['app'] === 'plans' || $projectsByUser[$uid][$key]['app'] === '–') {
+                                    $projectsByUser[$uid][$key]['app'] = $app;
+                                }
+                            }
+                        } catch (PDOException $e) {}
+                    }
+
+                    // Also try email-based join (invitations pattern)
+                    $colNames = array_column($tCols, 'Field');
+                    if (in_array('email', $colNames)) {
+                        try {
+                            $rows3 = db()->query(
+                                "SELECT u.id AS uid, p.id, p.$nameCol AS name
+                                 FROM `$tbl` m
+                                 JOIN users u ON u.email = m.email
+                                 JOIN projects p ON p.id = m.project_id"
+                            )->fetchAll();
+                            foreach ($rows3 as $r) {
+                                $uid = (int)$r['uid'];
+                                $key = strtolower(trim($r['name']));
+                                $app = $resolveApp('', $tbl);
+                                if (!isset($projectsByUser[$uid][$key])) {
+                                    $projectsByUser[$uid][$key] = ['app' => $app, 'name' => $r['name'], 'owner' => false];
+                                } elseif ($projectsByUser[$uid][$key]['app'] === '–') {
+                                    $projectsByUser[$uid][$key]['app'] = $app;
+                                }
+                            }
+                        } catch (PDOException $e) {}
                     }
                 } catch (PDOException $e) {}
             }
-
-            // 2) invitations table (Plans app) — users invited by email to projects
-            try {
-                $invCols = array_column(db()->query('SHOW COLUMNS FROM `invitations`')->fetchAll(), 'Field');
-                if (in_array('project_id', $invCols) && in_array('email', $invCols)) {
-                    $rows3 = db()->query(
-                        "SELECT u.id AS uid, p.id, p.$nameCol AS name
-                         FROM invitations i
-                         JOIN users u ON u.email = i.email
-                         JOIN projects p ON p.id = i.project_id"
-                    )->fetchAll();
-                    foreach ($rows3 as $r) {
-                        $uid = (int)$r['uid'];
-                        $key = strtolower(trim($r['name']));
-                        if (!isset($projectsByUser[$uid][$key])) {
-                            $projectsByUser[$uid][$key] = [
-                                'app'   => 'plans',
-                                'name'  => $r['name'],
-                                'owner' => false,
-                            ];
-                        } elseif ($projectsByUser[$uid][$key]['app'] === '–') {
-                            $projectsByUser[$uid][$key]['app'] = 'plans';
-                        }
-                    }
-                }
-            } catch (PDOException $e) {}
         }
     } catch (PDOException $e) {}
 
