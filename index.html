@@ -863,12 +863,16 @@ function renderMembers(members){
     if (projs.length) {
       const byApp = {};
       projs.forEach(p => { (byApp[p.app] = byApp[p.app]||[]).push(p); });
-      projHtml = Object.entries(byApp).map(([app, ps]) =>
+      projHtml = Object.entries(byApp).sort().map(([app, ps]) =>
         `<div style="margin-bottom:5px;">
           <span style="font-size:.57rem;letter-spacing:.14em;text-transform:uppercase;
                        color:rgba(201,168,76,0.5);margin-right:8px;">${esc(app)}</span>`
         + ps.map(p =>
-            `<span style="font-size:.68rem;color:rgba(255,255,255,.5);margin-right:8px;">${esc(p.name)}${p.owner?'':' <span style="opacity:.4;font-size:.6rem;">(člen)</span>'}</span>`
+            `<span style="font-size:.68rem;color:rgba(255,255,255,.55);margin-right:10px;">${esc(p.name)}`
+            + (p.owner
+                ? `<span style="opacity:.35;font-size:.58rem;margin-left:3px;">(vlastník)</span>`
+                : `<span style="opacity:.35;font-size:.58rem;margin-left:3px;">(člen)</span>`)
+            + `</span>`
           ).join('')
         + `</div>`
       ).join('');
