@@ -585,12 +585,18 @@ function handleMembers(): never {
     $projectsByUser = [];
     try {
         $projCols = array_column(db()->query('SHOW COLUMNS FROM projects')->fetchAll(), 'Field');
-        if (in_array('name', $projCols)) {
-            $appSel = in_array('app', $projCols) ? 'app' : "'' AS app";
-            $st = db()->query("SELECT created_by, name, $appSel FROM projects ORDER BY app, name");
+        $nameCol = in_array('name', $projCols) ? 'name'
+                 : (in_array('title', $projCols) ? 'title'
+                 : (in_array('project_name', $projCols) ? 'project_name' : null));
+        if ($nameCol) {
+            $appSel  = in_array('app', $projCols)      ? 'app'
+                     : (in_array('app_name', $projCols) ? 'app_name'
+                     : (in_array('type', $projCols)     ? 'type' : null));
+            $appExpr = $appSel ? $appSel : "'' AS app";
+            $st = db()->query("SELECT created_by, $nameCol AS name, $appExpr FROM projects ORDER BY app, $nameCol");
             foreach ($st->fetchAll() as $p) {
                 $projectsByUser[(int)$p['created_by']][] = [
-                    'app'   => $p['app'] ?: 'neznámá',
+                    'app'   => $p['app'] ?: '–',
                     'name'  => $p['name'],
                     'owner' => true,
                 ];
