@@ -788,21 +788,10 @@ function handleInvite(): never {
             <!-- Board -->
             <td width='20%' align='center' valign='bottom'
                 style='padding:14px 4px 10px;border-right:1px solid rgba(255,255,255,0.07);'>
-              <svg width='44' height='40' viewBox='0 0 110 100' fill='none'
-                   stroke='rgba(255,255,255,0.75)' stroke-linecap='round' stroke-linejoin='round'
-                   style='display:block;margin:0 auto;'>
-                <rect x='2' y='8' width='30' height='84' rx='4' stroke-width='1.5'/>
-                <rect x='40' y='8' width='30' height='84' rx='4' stroke-width='1.5'/>
-                <rect x='78' y='8' width='30' height='84' rx='4' stroke-width='1.5'/>
-                <rect x='6' y='14' width='22' height='14' rx='2' stroke-width='1'/>
-                <rect x='6' y='32' width='22' height='14' rx='2' stroke-width='1'/>
-                <rect x='6' y='50' width='22' height='14' rx='2' stroke-width='1'/>
-                <rect x='44' y='14' width='22' height='14' rx='2' stroke-width='1'/>
-                <rect x='44' y='32' width='22' height='14' rx='2' stroke-width='1'/>
-                <rect x='82' y='14' width='22' height='14' rx='2' stroke-width='1'/>
-                <rect x='82' y='32' width='22' height='14' rx='2' stroke-width='1'/>
-                <rect x='82' y='50' width='22' height='14' rx='2' stroke-width='1'/>
-                <rect x='82' y='68' width='22' height='14' rx='2' stroke-width='1'/>
+              <svg width='44' height='40' viewBox='0 0 110 100' style='display:block;margin:0 auto;'>
+                <rect x='8' y='6' width='38' height='66' rx='6' fill='rgba(255,255,255,0.75)'/>
+                <rect x='55' y='6' width='38' height='38' rx='6' fill='rgba(255,255,255,0.75)'/>
+                <rect x='55' y='52' width='38' height='38' rx='6' fill='rgba(255,255,255,0.4)'/>
               </svg>
               <div style='font-size:8px;letter-spacing:2px;text-transform:uppercase;
                           color:rgba(255,255,255,0.45);margin-top:7px;'>Board</div>
@@ -810,21 +799,8 @@ function handleInvite(): never {
             <!-- Plans -->
             <td width='20%' align='center' valign='bottom'
                 style='padding:14px 4px 10px;border-right:1px solid rgba(255,255,255,0.07);'>
-              <svg width='40' height='40' viewBox='0 0 100 100' fill='none'
-                   stroke='rgba(255,255,255,0.75)' stroke-linecap='round' stroke-linejoin='round'
-                   style='display:block;margin:0 auto;'>
-                <path d='M4 4 H96 V68 H68 V96 H4 Z' stroke-width='2'/>
-                <line x1='4' y1='48' x2='52' y2='48' stroke-width='2'/>
-                <line x1='52' y1='4' x2='52' y2='68' stroke-width='2'/>
-                <line x1='68' y1='68' x2='68' y2='48' stroke-width='2'/>
-                <line x1='52' y1='48' x2='68' y2='48' stroke-width='2'/>
-                <path d='M52 30 A16 16 0 0 1 68 46' stroke-width='1'/>
-                <line x1='8' y1='90' x2='36' y2='90' stroke-width='1'/>
-                <line x1='8' y1='87' x2='8' y2='93' stroke-width='1'/>
-                <line x1='36' y1='87' x2='36' y2='93' stroke-width='1'/>
-                <line x1='72' y1='72' x2='92' y2='72' stroke-width='1'/>
-                <line x1='72' y1='69' x2='72' y2='75' stroke-width='1'/>
-                <line x1='92' y1='69' x2='92' y2='75' stroke-width='1'/>
+              <svg width='40' height='40' viewBox='0 0 100 100' style='display:block;margin:0 auto;'>
+                <path fill-rule='evenodd' clip-rule='evenodd' d='M50 5C34.5 5 22 17.5 22 33c0 21.5 28 62 28 62s28-40.5 28-62C78 17.5 65.5 5 50 5zm0 37a13 13 0 1 1 0-26 13 13 0 0 1 0 26z' fill='rgba(255,255,255,0.75)'/>
               </svg>
               <div style='font-size:8px;letter-spacing:2px;text-transform:uppercase;
                           color:rgba(255,255,255,0.45);margin-top:7px;'>Plans</div>
@@ -832,26 +808,11 @@ function handleInvite(): never {
             <!-- Time -->
             <td width='20%' align='center' valign='bottom'
                 style='padding:14px 4px 10px;border-right:1px solid rgba(255,255,255,0.07);'>
-              <svg width='40' height='40' viewBox='0 0 100 100' fill='none'
-                   stroke='rgba(255,255,255,0.75)' stroke-linecap='round'
-                   style='display:block;margin:0 auto;'>
-                <circle cx='50' cy='50' r='46' stroke-width='1.5'/>
-                <circle cx='50' cy='50' r='38' stroke-width='0.5'/>
-                <line x1='50' y1='7' x2='50' y2='17' stroke-width='2.5'/>
-                <line x1='73' y1='13' x2='68' y2='22' stroke-width='2'/>
-                <line x1='90' y1='29' x2='82' y2='34' stroke-width='2'/>
-                <line x1='94' y1='50' x2='84' y2='50' stroke-width='2.5'/>
-                <line x1='90' y1='71' x2='82' y2='66' stroke-width='2'/>
-                <line x1='73' y1='87' x2='68' y2='78' stroke-width='2'/>
-                <line x1='50' y1='93' x2='50' y2='83' stroke-width='2.5'/>
-                <line x1='27' y1='87' x2='32' y2='78' stroke-width='2'/>
-                <line x1='10' y1='71' x2='18' y2='66' stroke-width='2'/>
-                <line x1='6' y1='50' x2='16' y2='50' stroke-width='2.5'/>
-                <line x1='10' y1='29' x2='18' y2='34' stroke-width='2'/>
-                <line x1='27' y1='13' x2='32' y2='22' stroke-width='2'/>
-                <line x1='50' y1='50' x2='34' y2='26' stroke-width='2.5'/>
-                <line x1='50' y1='50' x2='70' y2='40' stroke-width='1.5'/>
-                <circle cx='50' cy='50' r='3.5' fill='rgba(255,255,255,0.8)' stroke='none'/>
+              <svg width='40' height='40' viewBox='0 0 100 100' style='display:block;margin:0 auto;'>
+                <path fill-rule='evenodd' clip-rule='evenodd' d='M50 5C25.1 5 5 25.1 5 50s20.1 45 45 45 45-20.1 45-45S74.9 5 50 5zm0 78c-18.2 0-33-14.8-33-33s14.8-33 33-33 33 14.8 33 33-14.8 33-33 33z' fill='rgba(255,255,255,0.75)'/>
+                <rect x='46' y='19' width='8' height='33' rx='4' fill='rgba(255,255,255,0.75)'/>
+                <rect x='50' y='46' width='24' height='8' rx='4' fill='rgba(255,255,255,0.75)'/>
+                <circle cx='50' cy='50' r='5' fill='rgba(255,255,255,0.75)'/>
               </svg>
               <div style='font-size:8px;letter-spacing:2px;text-transform:uppercase;
                           color:rgba(255,255,255,0.45);margin-top:7px;'>Time</div>
@@ -859,28 +820,14 @@ function handleInvite(): never {
             <!-- Organs -->
             <td width='20%' align='center' valign='bottom'
                 style='padding:14px 4px 10px;border-right:1px solid rgba(255,255,255,0.07);'>
-              <svg width='40' height='40' viewBox='0 0 100 100' fill='none'
-                   stroke='rgba(255,255,255,0.75)' stroke-linecap='round' stroke-linejoin='round'
-                   style='display:block;margin:0 auto;'>
-                <rect x='36' y='4' width='28' height='16' rx='3' stroke-width='1.5'/>
-                <line x1='50' y1='20' x2='50' y2='34' stroke-width='1.5'/>
-                <line x1='18' y1='34' x2='82' y2='34' stroke-width='1.5'/>
-                <line x1='18' y1='34' x2='18' y2='42' stroke-width='1.5'/>
-                <line x1='82' y1='34' x2='82' y2='42' stroke-width='1.5'/>
-                <rect x='4' y='42' width='28' height='14' rx='3' stroke-width='1.5'/>
-                <rect x='68' y='42' width='28' height='14' rx='3' stroke-width='1.5'/>
-                <line x1='18' y1='56' x2='18' y2='66' stroke-width='1.5'/>
-                <line x1='8' y1='66' x2='28' y2='66' stroke-width='1.5'/>
-                <line x1='8' y1='66' x2='8' y2='72' stroke-width='1.5'/>
-                <line x1='28' y1='66' x2='28' y2='72' stroke-width='1.5'/>
-                <rect x='2' y='72' width='14' height='12' rx='2' stroke-width='1'/>
-                <rect x='22' y='72' width='14' height='12' rx='2' stroke-width='1'/>
-                <line x1='82' y1='56' x2='82' y2='66' stroke-width='1.5'/>
-                <line x1='68' y1='66' x2='96' y2='66' stroke-width='1.5'/>
-                <line x1='68' y1='66' x2='68' y2='72' stroke-width='1.5'/>
-                <line x1='96' y1='66' x2='96' y2='72' stroke-width='1.5'/>
-                <rect x='62' y='72' width='14' height='12' rx='2' stroke-width='1'/>
-                <rect x='83' y='72' width='14' height='12' rx='2' stroke-width='1'/>
+              <svg width='40' height='40' viewBox='0 0 100 100' style='display:block;margin:0 auto;'>
+                <rect x='35' y='5' width='30' height='18' rx='4' fill='rgba(255,255,255,0.75)'/>
+                <rect x='47' y='23' width='6' height='14' fill='rgba(255,255,255,0.75)'/>
+                <rect x='20' y='37' width='60' height='5' fill='rgba(255,255,255,0.75)'/>
+                <rect x='20' y='37' width='5' height='18' fill='rgba(255,255,255,0.75)'/>
+                <rect x='75' y='37' width='5' height='18' fill='rgba(255,255,255,0.75)'/>
+                <rect x='8' y='55' width='27' height='18' rx='4' fill='rgba(255,255,255,0.75)'/>
+                <rect x='65' y='55' width='27' height='18' rx='4' fill='rgba(255,255,255,0.75)'/>
               </svg>
               <div style='font-size:8px;letter-spacing:2px;text-transform:uppercase;
                           color:rgba(255,255,255,0.45);margin-top:7px;'>Organs</div>
@@ -888,20 +835,10 @@ function handleInvite(): never {
             <!-- CAD -->
             <td width='20%' align='center' valign='bottom'
                 style='padding:14px 4px 10px;'>
-              <svg width='40' height='40' viewBox='0 0 100 100' fill='none'
-                   stroke='rgba(255,255,255,0.75)' stroke-linecap='round' stroke-linejoin='round'
-                   style='display:block;margin:0 auto;'>
-                <polygon points='50,6 90,28 90,72 50,94 10,72 10,28' stroke-width='1.5'/>
-                <line x1='50' y1='6' x2='50' y2='50' stroke-width='1'/>
-                <line x1='90' y1='28' x2='50' y2='50' stroke-width='1'/>
-                <line x1='10' y1='28' x2='50' y2='50' stroke-width='1'/>
-                <polygon points='50,6 90,28 50,50 10,28' stroke-width='1.5'/>
-                <line x1='2' y1='28' x2='2' y2='72' stroke-width='0.8'/>
-                <line x1='0' y1='28' x2='4' y2='28' stroke-width='0.8'/>
-                <line x1='0' y1='72' x2='4' y2='72' stroke-width='0.8'/>
-                <line x1='10' y1='98' x2='90' y2='98' stroke-width='0.8'/>
-                <line x1='10' y1='96' x2='10' y2='100' stroke-width='0.8'/>
-                <line x1='90' y1='96' x2='90' y2='100' stroke-width='0.8'/>
+              <svg width='40' height='40' viewBox='0 0 100 100' style='display:block;margin:0 auto;'>
+                <circle cx='50' cy='12' r='10' fill='rgba(255,255,255,0.75)'/>
+                <path d='M43 21 L20 96 L35 96 L50 32 L65 96 L80 96 L57 21Z' fill='rgba(255,255,255,0.75)'/>
+                <rect x='29' y='57' width='42' height='7' rx='3.5' fill='rgba(255,255,255,0.75)'/>
               </svg>
               <div style='font-size:8px;letter-spacing:2px;text-transform:uppercase;
                           color:rgba(255,255,255,0.45);margin-top:7px;'>CAD</div>

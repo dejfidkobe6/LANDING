@@ -398,11 +398,11 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   border:1px solid rgba(255,255,255,0.45);
   display:flex; align-items:center; justify-content:center;
   margin-bottom:24px;
-  transition:border-color 0.3s, background 0.3s, box-shadow 0.3s;
+  color:rgba(255,255,255,0.95);
+  transition:border-color 0.3s, background 0.3s, box-shadow 0.3s, color 0.3s;
 }
-.card:hover .card-icon { border-color:var(--gold); background:rgba(201,168,76,0.15); box-shadow:0 0 20px rgba(201,168,76,0.3); }
-.card-icon svg { width:20px; height:20px; stroke:rgba(255,255,255,0.95); fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; transition:stroke 0.3s; }
-.card:hover .card-icon svg { stroke:var(--gold); }
+.card:hover .card-icon { border-color:var(--gold); background:rgba(201,168,76,0.15); box-shadow:0 0 20px rgba(201,168,76,0.3); color:var(--gold); }
+.card-icon svg { width:20px; height:20px; fill:currentColor; stroke:none; }
 
 .card-label { display:none; }
 .card-name { font-family:'Rajdhani',sans-serif; font-size:1.6rem; font-weight:600; letter-spacing:0.1em; color:var(--gold); margin-bottom:10px; line-height:1; transition:color 0.3s,text-shadow 0.3s; }
@@ -530,22 +530,9 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   <div class="cards">
 
     <a class="card" href="https://board.besix.cz">
-      <div class="card-bg"><svg viewBox="0 0 110 100" fill="none" stroke="rgba(255,255,255,1)" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="8" width="30" height="84" rx="4" stroke-width="1.5"/>
-        <rect x="40" y="8" width="30" height="84" rx="4" stroke-width="1.5"/>
-        <rect x="78" y="8" width="30" height="84" rx="4" stroke-width="1.5"/>
-        <rect x="6" y="14" width="22" height="14" rx="2" stroke-width="1"/>
-        <rect x="6" y="32" width="22" height="14" rx="2" stroke-width="1"/>
-        <rect x="6" y="50" width="22" height="14" rx="2" stroke-width="1"/>
-        <rect x="44" y="14" width="22" height="14" rx="2" stroke-width="1"/>
-        <rect x="44" y="32" width="22" height="14" rx="2" stroke-width="1"/>
-        <rect x="82" y="14" width="22" height="14" rx="2" stroke-width="1"/>
-        <rect x="82" y="32" width="22" height="14" rx="2" stroke-width="1"/>
-        <rect x="82" y="50" width="22" height="14" rx="2" stroke-width="1"/>
-        <rect x="82" y="68" width="22" height="14" rx="2" stroke-width="1"/>
-      </svg></div><div class="scan"></div>
+      <div class="card-bg"><svg viewBox="0 0 110 100"><rect x="8" y="6" width="38" height="66" rx="6" fill="rgba(255,255,255,1)"/><rect x="55" y="6" width="38" height="38" rx="6" fill="rgba(255,255,255,1)"/><rect x="55" y="52" width="38" height="38" rx="6" fill="rgba(255,255,255,.5)"/></svg></div><div class="scan"></div>
       <div class="card-num">01</div>
-      <div class="card-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+      <div class="card-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="15" rx="1.5" fill="currentColor"/><rect x="14" y="3" width="7" height="9" rx="1.5" fill="currentColor"/><rect x="14" y="14.5" width="7" height="6.5" rx="1.5" fill="currentColor" opacity=".5"/></svg></div>
       <div class="card-label">Modul · 01</div>
       <div class="card-name">BeSix Board</div>
       <div class="card-desc">Kanban řízení úkolů, přiřazení týmu, termíny a fotodokumentace stavby v reálném čase.</div>
@@ -553,22 +540,9 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
     </a>
 
     <a class="card" href="https://plans.besix.cz">
-      <div class="card-bg"><svg viewBox="0 0 100 100" fill="none" stroke="rgba(255,255,255,1)" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 4 H96 V68 H68 V96 H4 Z" stroke-width="2"/>
-        <line x1="4" y1="48" x2="52" y2="48" stroke-width="2"/>
-        <line x1="52" y1="4" x2="52" y2="68" stroke-width="2"/>
-        <line x1="68" y1="68" x2="68" y2="48" stroke-width="2"/>
-        <line x1="52" y1="48" x2="68" y2="48" stroke-width="2"/>
-        <path d="M52 30 A16 16 0 0 1 68 46" stroke-width="1"/>
-        <line x1="8" y1="90" x2="36" y2="90" stroke-width="1"/>
-        <line x1="8" y1="87" x2="8" y2="93" stroke-width="1"/>
-        <line x1="36" y1="87" x2="36" y2="93" stroke-width="1"/>
-        <line x1="72" y1="72" x2="92" y2="72" stroke-width="1"/>
-        <line x1="72" y1="69" x2="72" y2="75" stroke-width="1"/>
-        <line x1="92" y1="69" x2="92" y2="75" stroke-width="1"/>
-      </svg></div><div class="scan"></div>
+      <div class="card-bg"><svg viewBox="0 0 100 100"><path fill-rule="evenodd" clip-rule="evenodd" d="M50 5C34.5 5 22 17.5 22 33c0 21.5 28 62 28 62s28-40.5 28-62C78 17.5 65.5 5 50 5zm0 37a13 13 0 1 1 0-26 13 13 0 0 1 0 26z" fill="rgba(255,255,255,1)"/></svg></div><div class="scan"></div>
       <div class="card-num">02</div>
-      <div class="card-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg></div>
+      <div class="card-icon"><svg viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" fill="currentColor"/></svg></div>
       <div class="card-label">Modul · 02</div>
       <div class="card-name">BeSix Plans</div>
       <div class="card-desc">Interaktivní anotace výkresů, označení místností a správa projektové dokumentace.</div>
@@ -576,27 +550,9 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
     </a>
 
     <a class="card" href="https://time.besix.cz">
-      <div class="card-bg"><svg viewBox="0 0 100 100" fill="none" stroke="rgba(255,255,255,1)" stroke-linecap="round">
-        <circle cx="50" cy="50" r="46" stroke-width="1.5"/>
-        <circle cx="50" cy="50" r="38" stroke-width="0.5"/>
-        <line x1="50" y1="7" x2="50" y2="17" stroke-width="2.5"/>
-        <line x1="73" y1="13" x2="68" y2="22" stroke-width="2"/>
-        <line x1="90" y1="29" x2="82" y2="34" stroke-width="2"/>
-        <line x1="94" y1="50" x2="84" y2="50" stroke-width="2.5"/>
-        <line x1="90" y1="71" x2="82" y2="66" stroke-width="2"/>
-        <line x1="73" y1="87" x2="68" y2="78" stroke-width="2"/>
-        <line x1="50" y1="93" x2="50" y2="83" stroke-width="2.5"/>
-        <line x1="27" y1="87" x2="32" y2="78" stroke-width="2"/>
-        <line x1="10" y1="71" x2="18" y2="66" stroke-width="2"/>
-        <line x1="6" y1="50" x2="16" y2="50" stroke-width="2.5"/>
-        <line x1="10" y1="29" x2="18" y2="34" stroke-width="2"/>
-        <line x1="27" y1="13" x2="32" y2="22" stroke-width="2"/>
-        <line x1="50" y1="50" x2="34" y2="26" stroke-width="2.5"/>
-        <line x1="50" y1="50" x2="70" y2="40" stroke-width="1.5"/>
-        <circle cx="50" cy="50" r="3.5" fill="rgba(255,255,255,0.8)" stroke="none"/>
-      </svg></div><div class="scan"></div>
+      <div class="card-bg"><svg viewBox="0 0 100 100"><path fill-rule="evenodd" clip-rule="evenodd" d="M50 5C25.1 5 5 25.1 5 50s20.1 45 45 45 45-20.1 45-45S74.9 5 50 5zm0 78c-18.2 0-33-14.8-33-33s14.8-33 33-33 33 14.8 33 33-14.8 33-33 33z" fill="rgba(255,255,255,1)"/><rect x="46" y="19" width="8" height="33" rx="4" fill="rgba(255,255,255,1)"/><rect x="50" y="46" width="24" height="8" rx="4" fill="rgba(255,255,255,1)"/><circle cx="50" cy="50" r="5" fill="rgba(255,255,255,1)"/></svg></div><div class="scan"></div>
       <div class="card-num">03</div>
-      <div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div class="card-icon"><svg viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="currentColor"/><path d="M12.75 7.5h-1.5V12.5h4.5V11h-3z" fill="currentColor"/></svg></div>
       <div class="card-label">Modul · 03</div>
       <div class="card-name">BeSix Time</div>
       <div class="card-desc">Evidence pracovní doby, přehled odpracovaných hodin a výkazy pro celý stavební tým.</div>
@@ -604,29 +560,9 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
     </a>
 
     <a class="card" href="https://organs.besix.cz">
-      <div class="card-bg"><svg viewBox="0 0 100 100" fill="none" stroke="rgba(255,255,255,1)" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="36" y="4" width="28" height="16" rx="3" stroke-width="1.5"/>
-        <line x1="50" y1="20" x2="50" y2="34" stroke-width="1.5"/>
-        <line x1="18" y1="34" x2="82" y2="34" stroke-width="1.5"/>
-        <line x1="18" y1="34" x2="18" y2="42" stroke-width="1.5"/>
-        <line x1="82" y1="34" x2="82" y2="42" stroke-width="1.5"/>
-        <rect x="4" y="42" width="28" height="14" rx="3" stroke-width="1.5"/>
-        <rect x="68" y="42" width="28" height="14" rx="3" stroke-width="1.5"/>
-        <line x1="18" y1="56" x2="18" y2="66" stroke-width="1.5"/>
-        <line x1="8" y1="66" x2="28" y2="66" stroke-width="1.5"/>
-        <line x1="8" y1="66" x2="8" y2="72" stroke-width="1.5"/>
-        <line x1="28" y1="66" x2="28" y2="72" stroke-width="1.5"/>
-        <rect x="2" y="72" width="14" height="12" rx="2" stroke-width="1"/>
-        <rect x="22" y="72" width="14" height="12" rx="2" stroke-width="1"/>
-        <line x1="82" y1="56" x2="82" y2="66" stroke-width="1.5"/>
-        <line x1="68" y1="66" x2="96" y2="66" stroke-width="1.5"/>
-        <line x1="68" y1="66" x2="68" y2="72" stroke-width="1.5"/>
-        <line x1="96" y1="66" x2="96" y2="72" stroke-width="1.5"/>
-        <rect x="62" y="72" width="14" height="12" rx="2" stroke-width="1"/>
-        <rect x="83" y="72" width="14" height="12" rx="2" stroke-width="1"/>
-      </svg></div><div class="scan"></div>
+      <div class="card-bg"><svg viewBox="0 0 100 100"><rect x="35" y="5" width="30" height="18" rx="4" fill="rgba(255,255,255,1)"/><rect x="47" y="23" width="6" height="14" fill="rgba(255,255,255,1)"/><rect x="20" y="37" width="60" height="5" fill="rgba(255,255,255,1)"/><rect x="20" y="37" width="5" height="18" fill="rgba(255,255,255,1)"/><rect x="75" y="37" width="5" height="18" fill="rgba(255,255,255,1)"/><rect x="8" y="55" width="27" height="18" rx="4" fill="rgba(255,255,255,1)"/><rect x="65" y="55" width="27" height="18" rx="4" fill="rgba(255,255,255,1)"/></svg></div><div class="scan"></div>
       <div class="card-num">04</div>
-      <div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><line x1="12" y1="7" x2="12" y2="12"/><line x1="12" y1="12" x2="6" y2="17"/><line x1="12" y1="12" x2="18" y2="17"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/></svg></div>
+      <div class="card-icon"><svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="5" rx="1" fill="currentColor"/><rect x="2" y="17" width="6" height="5" rx="1" fill="currentColor"/><rect x="16" y="17" width="6" height="5" rx="1" fill="currentColor"/><rect x="11.25" y="7" width="1.5" height="4" rx=".75" fill="currentColor"/><rect x="4.5" y="11" width="15" height="1.5" rx=".75" fill="currentColor"/><rect x="4.5" y="11" width="1.5" height="6" rx=".75" fill="currentColor"/><rect x="18" y="11" width="1.5" height="6" rx=".75" fill="currentColor"/></svg></div>
       <div class="card-label">Modul · 04</div>
       <div class="card-name">BeSix Organs</div>
       <div class="card-desc">Organizační struktura stavebního týmu, přehled rolí a kontaktní přiřazení na projektu.</div>
@@ -634,21 +570,9 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
     </a>
 
     <a class="card" href="https://cad.besix.cz">
-      <div class="card-bg"><svg viewBox="0 0 100 100" fill="none" stroke="rgba(255,255,255,1)" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="50,6 90,28 90,72 50,94 10,72 10,28" stroke-width="1.5"/>
-        <line x1="50" y1="6" x2="50" y2="50" stroke-width="1"/>
-        <line x1="90" y1="28" x2="50" y2="50" stroke-width="1"/>
-        <line x1="10" y1="28" x2="50" y2="50" stroke-width="1"/>
-        <polygon points="50,6 90,28 50,50 10,28" stroke-width="1.5"/>
-        <line x1="2" y1="28" x2="2" y2="72" stroke-width="0.8"/>
-        <line x1="0" y1="28" x2="4" y2="28" stroke-width="0.8"/>
-        <line x1="0" y1="72" x2="4" y2="72" stroke-width="0.8"/>
-        <line x1="10" y1="98" x2="90" y2="98" stroke-width="0.8"/>
-        <line x1="10" y1="96" x2="10" y2="100" stroke-width="0.8"/>
-        <line x1="90" y1="96" x2="90" y2="100" stroke-width="0.8"/>
-      </svg></div><div class="scan"></div>
+      <div class="card-bg"><svg viewBox="0 0 100 100"><circle cx="50" cy="12" r="10" fill="rgba(255,255,255,1)"/><path d="M43 21 L20 96 L35 96 L50 32 L65 96 L80 96 L57 21Z" fill="rgba(255,255,255,1)"/><rect x="29" y="57" width="42" height="7" rx="3.5" fill="rgba(255,255,255,1)"/></svg></div><div class="scan"></div>
       <div class="card-num">05</div>
-      <div class="card-icon"><svg viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><line x1="3" y1="21" x2="21" y2="21"/><line x1="3" y1="3" x2="3" y2="21"/></svg></div>
+      <div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2.5" fill="currentColor"/><path d="M10.3 6.5 L6 22 L8.5 22 L12 9.5 L15.5 22 L18 22 L13.7 6.5Z" fill="currentColor"/><rect x="7.5" y="13.5" width="9" height="1.5" rx=".75" fill="currentColor"/></svg></div>
       <div class="card-label">Modul · 05</div>
       <div class="card-name">BeSix CAD</div>
       <div class="card-desc">Náhrada za AutoCAD.</div>
@@ -861,6 +785,7 @@ function renderMembers(members){
   const thDel = document.getElementById('th-del');
   if(thDel) thDel.textContent = '';
 
+  const APPS = ['board','plans','time','organs','cad'];
   const rows = [];
   members.forEach(m => {
     const init = (m.name||'?').trim()[0].toUpperCase();
@@ -874,96 +799,37 @@ function renderMembers(members){
       ? `<button class="del-btn" onclick="deleteMember(${m.id},'${esc(m.name||m.email)}')" title="Smazat člena">✕</button>`
       : '';
 
-    // App access pills — always visible under the name
-    const APPS = ['board','plans','time','organs','cad'];
-    const apps = m.apps || [];
-    const grantedApps = Object.fromEntries(apps.map(a => [a.app, a.role]));
-    const appPills = `<div style="margin-top:5px;">` + APPS.map(appKey => {
-      const active = appKey in grantedApps;
-      const role   = grantedApps[appKey] || '';
-      const activeStyle = active
-        ? 'background:rgba(201,168,76,0.15);border-color:rgba(201,168,76,0.5);color:rgba(201,168,76,0.9);'
-        : 'background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.1);color:rgba(255,255,255,0.2);';
-      const clickAttr = _isAdmin
-        ? `onclick="toggleAppAccess(${m.id},'${appKey}',${active})" style="cursor:pointer;${activeStyle}`
-        : `style="${activeStyle}`;
-      return `<span ${clickAttr};display:inline-block;padding:2px 8px;margin:1px 2px 0 0;
-              font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;
-              border:1px solid;transition:all .2s;" title="${active?'Odebrat přístup':'Přidat přístup'}">${appKey}${active?'&thinsp;<span style="opacity:.45;font-size:.52rem;">'+esc(role)+'</span>':''}</span>`;
-    }).join('') + `</div>`;
-
-    // Projects grouped by app — in expandable detail row
+    // Projects grouped by app — shown inline under name
     const projs = m.projects || [];
-    let projHtml = '';
-    if (projs.length) {
-      const byApp = {};
-      projs.forEach(p => { (byApp[p.app] = byApp[p.app]||[]).push(p); });
-      projHtml = Object.entries(byApp).sort().map(([app, ps]) =>
-        `<div style="margin-bottom:5px;">
-          <span style="font-size:.57rem;letter-spacing:.14em;text-transform:uppercase;
-                       color:rgba(201,168,76,0.5);margin-right:8px;">${esc(app)}</span>`
-        + ps.map(p =>
-            `<span style="font-size:.68rem;color:rgba(255,255,255,.55);margin-right:10px;">${esc(p.name)}`
-            + (p.owner
-                ? `<span style="opacity:.35;font-size:.58rem;margin-left:3px;">(vlastník)</span>`
-                : `<span style="opacity:.35;font-size:.58rem;margin-left:3px;">(člen)</span>`)
-            + `</span>`
-          ).join('')
-        + `</div>`
-      ).join('');
-    }
-
-    const hasProjects = projs.length > 0;
-    const chevron = hasProjects
-      ? `<span id="chev-${m.id}" style="font-size:.45rem;opacity:.35;margin-left:6px;vertical-align:middle;cursor:pointer;">▶</span>`
+    const byApp = {};
+    projs.forEach(p => { (byApp[p.app] = byApp[p.app]||[]).push(p); });
+    const projParts = APPS.map(appKey => {
+      const ps = byApp[appKey] || [];
+      if (!ps.length) return null;
+      const names = ps.map(p =>
+        `<span style="font-size:.66rem;color:rgba(255,255,255,.5);">${esc(p.name)}${p.owner?'&thinsp;<span style="opacity:.3;font-size:.55rem;">✶</span>':''}</span>`
+      ).join('<span style="opacity:.2;margin:0 2px;">,</span>');
+      return `<span style="white-space:nowrap;display:inline-block;margin:0 10px 2px 0;">` +
+        `<span style="font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(201,168,76,0.55);margin-right:4px;">${appKey}</span>${names}</span>`;
+    }).filter(Boolean);
+    const projRow = projParts.length
+      ? `<div style="margin-top:5px;line-height:1.9;">${projParts.join('')}</div>`
       : '';
 
-    // Main member row
-    rows.push(`<tr class="member-row"${hasProjects ? ` onclick="toggleMemberDetail(${m.id})" style="cursor:pointer;"` : ''}>
+    rows.push(`<tr class="member-row">
       <td>
         <span class="member-av" style="background:${m.avatar_color||'#4A5340'}">${init}</span>
-        <span class="member-name">${esc(m.name||'—')}</span>${adminBadge}${chevron}
-        ${appPills}
+        <span class="member-name">${esc(m.name||'—')}</span>${adminBadge}
+        ${projRow}
       </td>
       <td><span class="member-email">${esc(m.email)}</span></td>
       <td>${verBadge}</td>
       <td style="color:rgba(255,255,255,.4);font-size:.72rem;">${m.created_at}</td>
       <td>${delBtn}</td>
     </tr>`);
-
-    // Project detail row (hidden, toggled on click)
-    if (hasProjects) {
-      rows.push(`<tr id="detail-${m.id}" style="display:none;">
-        <td colspan="5" style="padding:4px 16px 10px 52px;background:rgba(0,0,0,0.15);">
-          <div style="font-size:.57rem;letter-spacing:.14em;text-transform:uppercase;
-                      color:rgba(201,168,76,0.4);margin-bottom:6px;">Projekty</div>
-          ${projHtml}
-        </td>
-      </tr>`);
-    }
   });
 
   tb.innerHTML = rows.join('');
-}
-function toggleMemberDetail(uid){
-  const row  = document.getElementById('detail-'+uid);
-  const chev = document.getElementById('chev-'+uid);
-  if(!row) return;
-  const open = row.style.display !== 'none' && row.style.display !== '';
-  row.style.display  = open ? 'none' : '';
-  if(chev) chev.textContent = open ? '▶' : '▼';
-}
-async function toggleAppAccess(uid, app, currentlyGranted){
-  try {
-    const r = await fetch(API+'set_app_access', {
-      method:'POST', credentials:'include',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ user_id: uid, app, granted: !currentlyGranted, role: 'clen' })
-    });
-    const d = await r.json();
-    if(!r.ok) throw new Error(d.error||'Chyba');
-    loadMembers();
-  } catch(e){ alert(e.message); }
 }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
