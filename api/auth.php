@@ -722,7 +722,7 @@ function handleInvitations(): never {
                     u.id AS user_id, u.name AS user_name, u.created_at AS accepted_at
              FROM platform_invitations i
              LEFT JOIN users u ON u.email = i.email
-             WHERE i.email != ''
+             WHERE i.email != '' AND u.id IS NULL
              ORDER BY i.sent_at DESC"
         );
         $rows = $st->fetchAll();
@@ -732,7 +732,7 @@ function handleInvitations(): never {
                     u.id AS user_id, u.name AS user_name, u.created_at AS accepted_at
              FROM platform_invitations i
              LEFT JOIN users u ON u.email = i.email
-             WHERE i.email != '' AND i.invited_by = ?
+             WHERE i.email != '' AND i.invited_by = ? AND u.id IS NULL
              ORDER BY i.sent_at DESC"
         );
         $st->execute([(int)$me['id']]);
