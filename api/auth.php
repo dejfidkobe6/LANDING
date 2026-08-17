@@ -916,9 +916,9 @@ function handleDeleteMember(): never {
     $pdo = db();
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
     try {
-        // Delete projects this user created (not projects they're just a member of)
-        $pdo->prepare('DELETE FROM projects WHERE created_by = ?')->execute([$uid]);
-        // Delete the user
+        try {
+            $pdo->prepare('DELETE FROM projects WHERE created_by = ?')->execute([$uid]);
+        } catch (PDOException $e) { /* tabulka projects neexistuje v této DB */ }
         $pdo->prepare('DELETE FROM users WHERE id = ?')->execute([$uid]);
     } finally {
         $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
