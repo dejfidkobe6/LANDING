@@ -62,24 +62,24 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   width:130px;
   display:flex; flex-direction:column;
   border-radius:6px; overflow:hidden;
+  position:relative;
   box-shadow:0 12px 64px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.25), 0 0 0 4px rgba(0,0,0,0.5), 0 0 40px rgba(0,0,0,0.6);
   flex-shrink:0;
 }
 /* brand spec: 3 equal top stripes (74%) + gold band (26%)
    130px flag → top stripes 32px each, gold band 34px */
 .flag-black { height:32px; background:#000; }
-.flag-olive {
-  height:32px; background:#4A5340;
-  display:flex; align-items:center; justify-content:center;
-}
+.flag-olive { height:32px; background:#4A5340; }
 .flag-white { height:32px; background:#fff; }
 .flag-gold {
   height:34px; background:#C9A84C;
   display:flex; align-items:center; justify-content:center;
 }
+/* logo absolutně přes všechny 3 pruhy — z-index nad bílým pruhem */
 .flag-logo-img {
+  position:absolute; z-index:2;
   width:70%; height:auto; object-fit:contain;
-  /* gold PNG přímo — žádný filter, přesná #C9A84C */
+  left:15%; top:12%;
 }
 .flag-platform {
   font-family:'Montserrat','Rajdhani',sans-serif;
@@ -91,6 +91,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 .auth-flag {
   width:110px; display:flex; flex-direction:column;
   border-radius:4px; overflow:hidden; margin-bottom:14px;
+  position:relative;
 }
 .auth-flag .flag-black { height:27px; }
 .auth-flag .flag-olive { height:27px; }
@@ -520,9 +521,10 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   <div class="logo-wrap">
     <div class="besix-flag">
       <div class="flag-black"></div>
-      <div class="flag-olive"><img class="flag-logo-img" src="/besix_logo_gold.png" alt="BeSix"></div>
+      <div class="flag-olive"></div>
       <div class="flag-white"></div>
       <div class="flag-gold"><span class="flag-platform">PLATFORM</span></div>
+      <img class="flag-logo-img" src="/besix_logo_gold.png" alt="BeSix">
     </div>
   </div>
 
@@ -672,9 +674,10 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
     <div class="auth-logo-wrap">
       <div class="auth-flag besix-flag">
         <div class="flag-black"></div>
-        <div class="flag-olive"><img class="flag-logo-img" src="/besix_logo_gold.png" alt="BeSix"></div>
+        <div class="flag-olive"></div>
         <div class="flag-white"></div>
         <div class="flag-gold"><span class="flag-platform">PLATFORM</span></div>
+        <img class="flag-logo-img" src="/besix_logo_gold.png" alt="BeSix">
       </div>
     </div>
 
