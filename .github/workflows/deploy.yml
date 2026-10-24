@@ -43,6 +43,29 @@ jobs:
           PYEOF
 
       - name: Deploy via FTP
+        id: ftp1
+        continue-on-error: true
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server:           ${{ secrets.FTP_SERVER }}
+          username:         ${{ secrets.FTP_USERNAME }}
+          password:         ${{ secrets.FTP_PASSWORD }}
+          local-dir:        ./
+          server-dir:       /besix.cz/
+          exclude:          |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .gitignore
+
+      - name: Wait before retry
+        if: steps.ftp1.outcome == 'failure'
+        run: |
+          echo "FTP attempt 1 failed, waiting 20s before retry..."
+          sleep 20
+
+      - name: Deploy via FTP (retry)
+        if: steps.ftp1.outcome == 'failure'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server:           ${{ secrets.FTP_SERVER }}
