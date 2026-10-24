@@ -65,19 +65,21 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   box-shadow:0 12px 64px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.25), 0 0 0 4px rgba(0,0,0,0.5), 0 0 40px rgba(0,0,0,0.6);
   flex-shrink:0;
 }
-.flag-black { height:33px; background:#000; }
+/* brand spec: 3 equal top stripes (74%) + gold band (26%)
+   130px flag → top stripes 32px each, gold band 34px */
+.flag-black { height:32px; background:#000; }
 .flag-olive {
-  height:33px; background:#4A5340;
+  height:32px; background:#4A5340;
   display:flex; align-items:center; justify-content:center;
 }
-.flag-white { height:33px; background:#fff; }
+.flag-white { height:32px; background:#fff; }
 .flag-gold {
-  height:33px; background:#c9a84c;
+  height:34px; background:#C9A84C;
   display:flex; align-items:center; justify-content:center;
 }
 .flag-logo-img {
   width:70%; height:auto; object-fit:contain;
-  filter:invert(70%) sepia(50%) saturate(500%) hue-rotate(1deg) brightness(95%) contrast(85%);
+  /* gold PNG přímo — žádný filter, přesná #C9A84C */
 }
 .flag-platform {
   font-family:'Montserrat','Rajdhani',sans-serif;
@@ -85,17 +87,17 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   color:#4A5340; letter-spacing:1.5px; text-transform:uppercase;
 }
 
-/* auth modal flag */
+/* auth modal flag: 110px → top stripes 27px, gold 29px */
 .auth-flag {
   width:110px; display:flex; flex-direction:column;
   border-radius:4px; overflow:hidden; margin-bottom:14px;
 }
-.auth-flag .flag-black { height:28px; }
-.auth-flag .flag-olive { height:28px; overflow:hidden; }
-.auth-flag .flag-white { height:28px; }
-.auth-flag .flag-gold  { height:28px; }
-.auth-flag .flag-logo-img { width:auto; height:75%; max-width:65%; }
-.auth-flag .flag-platform { font-size:11px; letter-spacing:2px; }
+.auth-flag .flag-black { height:27px; }
+.auth-flag .flag-olive { height:27px; }
+.auth-flag .flag-white { height:27px; }
+.auth-flag .flag-gold  { height:29px; }
+.auth-flag .flag-logo-img { width:70%; height:auto; }
+.auth-flag .flag-platform { font-size:11px; letter-spacing:1.5px; }
 
 /* ── TAGLINE ── */
 .tagline {
@@ -345,7 +347,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   width:100%; max-width:1280px;
 }
 @media(max-width:960px){ .cards{grid-template-columns:repeat(2,1fr);} }
-@media(max-width:720px){ .cards{grid-template-columns:1fr;} .besix-flag{width:100px;} .flag-black{height:25px;} .flag-olive{height:25px;} .flag-white{height:25px;} .flag-gold{height:25px;} .flag-logo-img{max-width:82%;} .flag-platform{font-size:10px;letter-spacing:1px;} }
+@media(max-width:720px){ .cards{grid-template-columns:1fr;} .besix-flag{width:100px;} .flag-black{height:25px;} .flag-olive{height:25px;} .flag-white{height:25px;} .flag-gold{height:26px;} .flag-logo-img{width:70%;} .flag-platform{font-size:10px;letter-spacing:1px;} }
 
 .card {
   position:relative; display:block; text-decoration:none; color:inherit;
@@ -518,7 +520,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   <div class="logo-wrap">
     <div class="besix-flag">
       <div class="flag-black"></div>
-      <div class="flag-olive"><img class="flag-logo-img" src="/besix_logo_bila.png" alt="BeSix"></div>
+      <div class="flag-olive"><img class="flag-logo-img" src="/besix_logo_gold.png" alt="BeSix"></div>
       <div class="flag-white"></div>
       <div class="flag-gold"><span class="flag-platform">PLATFORM</span></div>
     </div>
@@ -670,7 +672,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
     <div class="auth-logo-wrap">
       <div class="auth-flag besix-flag">
         <div class="flag-black"></div>
-        <div class="flag-olive"><img class="flag-logo-img" src="/besix_logo_bila.png" alt="BeSix"></div>
+        <div class="flag-olive"><img class="flag-logo-img" src="/besix_logo_gold.png" alt="BeSix"></div>
         <div class="flag-white"></div>
         <div class="flag-gold"><span class="flag-platform">PLATFORM</span></div>
       </div>
