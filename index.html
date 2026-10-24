@@ -59,30 +59,30 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   animation:fadeDown 1s cubic-bezier(0.16,1,0.3,1) both 0.2s;
 }
 .besix-flag {
-  width:260px;
+  width:130px;
   display:flex; flex-direction:column;
   border-radius:6px; overflow:hidden;
   box-shadow:0 12px 64px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.25), 0 0 0 4px rgba(0,0,0,0.5), 0 0 40px rgba(0,0,0,0.6);
   flex-shrink:0;
 }
-.flag-black { height:65px; background:#000; }
+.flag-black { height:33px; background:#000; }
 .flag-olive {
-  height:65px; background:#4A5340;
+  height:33px; background:#4A5340;
   display:flex; align-items:center; justify-content:center; overflow:hidden;
 }
-.flag-white { height:65px; background:#fff; }
+.flag-white { height:33px; background:#fff; }
 .flag-gold {
-  height:65px; background:#c9a84c;
+  height:33px; background:#c9a84c;
   display:flex; align-items:center; justify-content:center;
 }
 .flag-logo-img {
-  width:auto; height:75%; max-width:65%; object-fit:contain;
+  width:auto; height:85%; max-width:82%; object-fit:contain;
   filter:brightness(0) invert(1);
 }
 .flag-platform {
   font-family:'Montserrat','Rajdhani',sans-serif;
-  font-size:26px; font-weight:700;
-  color:#4A5340; letter-spacing:3px; text-transform:uppercase;
+  font-size:13px; font-weight:700;
+  color:#4A5340; letter-spacing:1.5px; text-transform:uppercase;
 }
 
 /* auth modal flag */
@@ -345,7 +345,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   width:100%; max-width:1280px;
 }
 @media(max-width:960px){ .cards{grid-template-columns:repeat(2,1fr);} }
-@media(max-width:720px){ .cards{grid-template-columns:1fr;} .besix-flag{width:200px;} .flag-black{height:50px;} .flag-olive{height:50px;} .flag-white{height:50px;} .flag-gold{height:50px;} .flag-logo-img{width:112px;} .flag-platform{font-size:20px;letter-spacing:2px;} }
+@media(max-width:720px){ .cards{grid-template-columns:1fr;} .besix-flag{width:100px;} .flag-black{height:25px;} .flag-olive{height:25px;} .flag-white{height:25px;} .flag-gold{height:25px;} .flag-logo-img{max-width:82%;} .flag-platform{font-size:10px;letter-spacing:1px;} }
 
 .card {
   position:relative; display:block; text-decoration:none; color:inherit;
