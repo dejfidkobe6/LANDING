@@ -75,11 +75,12 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   height:34px; background:#C9A84C;
   display:flex; align-items:center; justify-content:center;
 }
-/* logo absolutně přes všechny 3 pruhy — z-index nad bílým pruhem */
+/* logo absolutně přes všechny 3 pruhy — z-index nad bílým pruhem
+   63% šířky, top 2% → BeSix text těsně nad hranou olive/white */
 .flag-logo-img {
   position:absolute; z-index:2;
-  width:70%; height:auto; object-fit:contain;
-  left:15%; top:12%;
+  width:63%; height:auto; object-fit:contain;
+  left:18.5%; top:2%;
 }
 .flag-platform {
   font-family:'Montserrat','Rajdhani',sans-serif;
@@ -97,7 +98,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 .auth-flag .flag-olive { height:27px; }
 .auth-flag .flag-white { height:27px; }
 .auth-flag .flag-gold  { height:29px; }
-.auth-flag .flag-logo-img { width:70%; height:auto; }
+.auth-flag .flag-logo-img { width:63%; left:18.5%; top:2%; }
 .auth-flag .flag-platform { font-size:11px; letter-spacing:1.5px; }
 
 /* ── TAGLINE ── */
@@ -348,7 +349,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   width:100%; max-width:1280px;
 }
 @media(max-width:960px){ .cards{grid-template-columns:repeat(2,1fr);} }
-@media(max-width:720px){ .cards{grid-template-columns:1fr;} .besix-flag{width:100px;} .flag-black{height:25px;} .flag-olive{height:25px;} .flag-white{height:25px;} .flag-gold{height:26px;} .flag-logo-img{width:70%;} .flag-platform{font-size:10px;letter-spacing:1px;} }
+@media(max-width:720px){ .cards{grid-template-columns:1fr;} .besix-flag{width:100px;} .flag-black{height:25px;} .flag-olive{height:25px;} .flag-white{height:25px;} .flag-gold{height:26px;} .flag-logo-img{width:63%;left:18.5%;top:2%;} .flag-platform{font-size:10px;letter-spacing:1px;} }
 
 .card {
   position:relative; display:block; text-decoration:none; color:inherit;
