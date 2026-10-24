@@ -412,15 +412,15 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 .card:hover .card-num { color:rgba(255,255,255,0.35); }
 
 .card-icon {
-  width:44px; height:44px;
-  border:1px solid rgba(255,255,255,0.45);
-  display:flex; align-items:center; justify-content:center;
+  width:52px; height:52px;
+  border-radius:10px; overflow:hidden;
   margin-bottom:24px;
-  color:rgba(255,255,255,0.95);
-  transition:border-color 0.3s, background 0.3s, box-shadow 0.3s, color 0.3s;
+  box-shadow:0 2px 12px rgba(0,0,0,0.45);
+  transition:transform 0.3s, box-shadow 0.3s;
+  flex-shrink:0;
 }
-.card:hover .card-icon { border-color:var(--gold); background:rgba(201,168,76,0.15); box-shadow:0 0 20px rgba(201,168,76,0.3); color:var(--gold); }
-.card-icon svg { width:20px; height:20px; fill:currentColor; stroke:none; }
+.card:hover .card-icon { transform:scale(1.08); box-shadow:0 4px 20px rgba(0,0,0,0.6); }
+.card-icon img { width:100%; height:100%; display:block; object-fit:cover; }
 
 .card-label { display:none; }
 .card-name { font-family:'Rajdhani',sans-serif; font-size:1.6rem; font-weight:600; letter-spacing:0.1em; color:var(--gold); margin-bottom:10px; line-height:1; transition:color 0.3s,text-shadow 0.3s; }
@@ -605,7 +605,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
     <a class="card card-board" href="https://board.besix.cz">
       <div class="card-bg"><svg viewBox="0 0 110 100"><rect x="8" y="6" width="38" height="66" rx="6" fill="rgba(255,255,255,1)"/><rect x="55" y="6" width="38" height="38" rx="6" fill="rgba(255,255,255,1)"/><rect x="55" y="52" width="38" height="38" rx="6" fill="rgba(255,255,255,.5)"/></svg></div><div class="scan"></div>
       <div class="card-num">01</div>
-      <div class="card-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="15" rx="1.5" fill="currentColor"/><rect x="14" y="3" width="7" height="9" rx="1.5" fill="currentColor"/><rect x="14" y="14.5" width="7" height="6.5" rx="1.5" fill="currentColor" opacity=".5"/></svg></div>
+      <div class="card-icon"><img src="/icon-card-board.png" alt="Board"></div>
       <div class="card-label">Modul · 01</div>
       <div class="card-name">BeSix Board</div>
       <div class="card-desc">Kanban řízení úkolů, přiřazení týmu, termíny a fotodokumentace stavby v reálném čase.</div>
@@ -615,7 +615,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
     <a class="card card-plans" href="https://plans.besix.cz">
       <div class="card-bg"><svg viewBox="0 0 100 100"><path fill-rule="evenodd" clip-rule="evenodd" d="M50 5C34.5 5 22 17.5 22 33c0 21.5 28 62 28 62s28-40.5 28-62C78 17.5 65.5 5 50 5zm0 37a13 13 0 1 1 0-26 13 13 0 0 1 0 26z" fill="rgba(255,255,255,1)"/></svg></div><div class="scan"></div>
       <div class="card-num">02</div>
-      <div class="card-icon"><svg viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" fill="currentColor"/></svg></div>
+      <div class="card-icon"><img src="/icon-card-plans.png" alt="Plans"></div>
       <div class="card-label">Modul · 02</div>
       <div class="card-name">BeSix Plans</div>
       <div class="card-desc">Interaktivní anotace výkresů, označení místností a správa projektové dokumentace.</div>
@@ -625,7 +625,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
     <a class="card card-time" href="https://time.besix.cz">
       <div class="card-bg"><svg viewBox="0 0 100 100"><path fill-rule="evenodd" clip-rule="evenodd" d="M50 5C25.1 5 5 25.1 5 50s20.1 45 45 45 45-20.1 45-45S74.9 5 50 5zm0 78c-18.2 0-33-14.8-33-33s14.8-33 33-33 33 14.8 33 33-14.8 33-33 33z" fill="rgba(255,255,255,1)"/><rect x="46" y="19" width="8" height="33" rx="4" fill="rgba(255,255,255,1)"/><rect x="50" y="46" width="24" height="8" rx="4" fill="rgba(255,255,255,1)"/><circle cx="50" cy="50" r="5" fill="rgba(255,255,255,1)"/></svg></div><div class="scan"></div>
       <div class="card-num">03</div>
-      <div class="card-icon"><svg viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="currentColor"/><path d="M12.75 7.5h-1.5V12.5h4.5V11h-3z" fill="currentColor"/></svg></div>
+      <div class="card-icon"><img src="/icon-card-time.png" alt="Time"></div>
       <div class="card-label">Modul · 03</div>
       <div class="card-name">BeSix Time</div>
       <div class="card-desc">Evidence pracovní doby, přehled odpracovaných hodin a výkazy pro celý stavební tým.</div>
@@ -635,7 +635,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
     <a class="card card-organs" href="https://organs.besix.cz">
       <div class="card-bg"><svg viewBox="0 0 100 100"><rect x="35" y="5" width="30" height="18" rx="4" fill="rgba(255,255,255,1)"/><rect x="47" y="23" width="6" height="14" fill="rgba(255,255,255,1)"/><rect x="20" y="37" width="60" height="5" fill="rgba(255,255,255,1)"/><rect x="20" y="37" width="5" height="18" fill="rgba(255,255,255,1)"/><rect x="75" y="37" width="5" height="18" fill="rgba(255,255,255,1)"/><rect x="8" y="55" width="27" height="18" rx="4" fill="rgba(255,255,255,1)"/><rect x="65" y="55" width="27" height="18" rx="4" fill="rgba(255,255,255,1)"/></svg></div><div class="scan"></div>
       <div class="card-num">04</div>
-      <div class="card-icon"><svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="5" rx="1" fill="currentColor"/><rect x="2" y="17" width="6" height="5" rx="1" fill="currentColor"/><rect x="16" y="17" width="6" height="5" rx="1" fill="currentColor"/><rect x="11.25" y="7" width="1.5" height="4" rx=".75" fill="currentColor"/><rect x="4.5" y="11" width="15" height="1.5" rx=".75" fill="currentColor"/><rect x="4.5" y="11" width="1.5" height="6" rx=".75" fill="currentColor"/><rect x="18" y="11" width="1.5" height="6" rx=".75" fill="currentColor"/></svg></div>
+      <div class="card-icon"><img src="/icon-card-organs.png" alt="Organs"></div>
       <div class="card-label">Modul · 04</div>
       <div class="card-name">BeSix Organs</div>
       <div class="card-desc">Organizační struktura stavebního týmu, přehled rolí a kontaktní přiřazení na projektu.</div>
@@ -645,7 +645,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
     <a class="card card-cad" href="https://cad.besix.cz">
       <div class="card-bg"><svg viewBox="0 0 100 100"><circle cx="50" cy="12" r="10" fill="rgba(255,255,255,1)"/><path d="M43 21 L20 96 L35 96 L50 32 L65 96 L80 96 L57 21Z" fill="rgba(255,255,255,1)"/><rect x="29" y="57" width="42" height="7" rx="3.5" fill="rgba(255,255,255,1)"/></svg></div><div class="scan"></div>
       <div class="card-num">05</div>
-      <div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2.5" fill="currentColor"/><path d="M10.3 6.5 L6 22 L8.5 22 L12 9.5 L15.5 22 L18 22 L13.7 6.5Z" fill="currentColor"/><rect x="7.5" y="13.5" width="9" height="1.5" rx=".75" fill="currentColor"/></svg></div>
+      <div class="card-icon"><img src="/icon-card-cad.png" alt="CAD"></div>
       <div class="card-label">Modul · 05</div>
       <div class="card-name">BeSix CAD</div>
       <div class="card-desc">Náhrada za AutoCAD.</div>
