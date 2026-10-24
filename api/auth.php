@@ -179,7 +179,9 @@ function randomColor(): string {
 
 function sendEmail(string $to, string $toName, string $subject, string $html): void {
     $apiKey = env('BREVO_API_KEY');
-    $from   = env('MAIL_FROM', 'noreply@besix.cz');
+    if (!$apiKey) throw new RuntimeException('BREVO_API_KEY není nastaven');
+
+    $from = env('MAIL_FROM', 'noreply@besix.cz');
     $payload = json_encode([
         'sender'      => ['email' => $from, 'name' => 'BeSix Platform'],
         'to'          => [['email' => $to, 'name' => $toName]],
@@ -192,10 +194,18 @@ function sendEmail(string $to, string $toName, string $subject, string $html): v
         CURLOPT_POSTFIELDS     => $payload,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HTTPHEADER     => ['Content-Type: application/json', 'api-key: ' . $apiKey],
-        CURLOPT_TIMEOUT        => 10,
+        CURLOPT_TIMEOUT        => 15,
     ]);
-    curl_exec($ch);
+    $body   = curl_exec($ch);
+    $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $err    = curl_error($ch);
     curl_close($ch);
+
+    if ($err) throw new RuntimeException('cURL chyba: ' . $err);
+    if ($status < 200 || $status >= 300) {
+        $detail = json_decode($body, true)['message'] ?? $body;
+        throw new RuntimeException("Brevo API chyba $status: $detail");
+    }
 }
 
 function emailTemplate(string $title, string $body): string {
@@ -333,7 +343,12 @@ function handleRegister(): never {
         <p style='margin:20px 0 0;font-size:.78rem;color:rgba(255,255,255,.4);'>
           Odkaz platí 24 hodin. Pokud jsi o registraci nežádal/a, tento e-mail ignoruj.
         </p>");
-    sendEmail($email, $name, 'BeSix — Ověřte svůj e-mail', $html);
+    try {
+        sendEmail($email, $name, 'BeSix — Ověřte svůj e-mail', $html);
+    } catch (RuntimeException $e) {
+        // Uživatel byl vytvořen, ale email selhal — informujeme
+        json_out(['success' => true, 'warning' => 'Účet vytvořen, ale ověřovací email se nepodařilo odeslat: ' . $e->getMessage()]);
+    }
 
     json_out(['success' => true, 'message' => 'Registrace proběhla. Zkontroluj e-mail pro ověření.']);
 }
@@ -426,7 +441,9 @@ function handleForgot(): never {
             <p style='margin:20px 0 0;font-size:.78rem;color:rgba(255,255,255,.4);'>
               Odkaz platí 1 hodinu. Pokud jsi reset hesla nežádal/a, tento e-mail ignoruj.
             </p>");
-        sendEmail($email, $user['name'], 'BeSix — Reset hesla', $html);
+        try {
+            sendEmail($email, $user['name'], 'BeSix — Reset hesla', $html);
+        } catch (RuntimeException $e) { /* tiché selhání — nechceme enumeraci emailů */ }
     }
 
     // Vždy vrať success aby nedošlo k enumeraci e-mailů
@@ -867,7 +884,11 @@ function handleInvite(): never {
         </p>
     ");
 
-    sendEmail($email, $email, 'Pozvánka do BeSix Platform', $html);
+    try {
+        sendEmail($email, $email, 'Pozvánka do BeSix Platform', $html);
+    } catch (RuntimeException $e) {
+        json_out(['error' => 'Email se nepodařilo odeslat: ' . $e->getMessage()], 502);
+    }
     json_out(['success' => true, 'message' => 'Pozvánka odeslána na ' . $email]);
 }
 
@@ -895,9 +916,9 @@ function handleDeleteMember(): never {
     $pdo = db();
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
     try {
-        // Delete projects this user created (not projects they're just a member of)
-        $pdo->prepare('DELETE FROM projects WHERE created_by = ?')->execute([$uid]);
-        // Delete the user
+        try {
+            $pdo->prepare('DELETE FROM projects WHERE created_by = ?')->execute([$uid]);
+        } catch (PDOException $e) { /* tabulka projects neexistuje v této DB */ }
         $pdo->prepare('DELETE FROM users WHERE id = ?')->execute([$uid]);
     } finally {
         $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
