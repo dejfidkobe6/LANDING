@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Platform">
-<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Exo+2:wght@200;300;400&family=Montserrat:wght@700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -55,7 +55,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 
 /* ── LOGO / FLAG ── */
 .logo-wrap {
-  display:flex; align-items:center; justify-content:center; margin-bottom:12px;
+  display:flex; align-items:center; justify-content:center; margin-bottom:48px;
   animation:fadeDown 1s cubic-bezier(0.16,1,0.3,1) both 0.2s;
 }
 .besix-flag {
@@ -68,7 +68,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 .flag-black { height:33px; background:#000; }
 .flag-olive {
   height:33px; background:#4A5340;
-  display:flex; align-items:center; justify-content:center; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
 }
 .flag-white { height:33px; background:#fff; }
 .flag-gold {
@@ -76,8 +76,8 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   display:flex; align-items:center; justify-content:center;
 }
 .flag-logo-img {
-  width:auto; height:85%; max-width:82%; object-fit:contain;
-  filter:brightness(0) invert(1);
+  width:70%; height:auto; object-fit:contain;
+  filter:invert(70%) sepia(50%) saturate(500%) hue-rotate(1deg) brightness(95%) contrast(85%);
 }
 .flag-platform {
   font-family:'Montserrat','Rajdhani',sans-serif;
@@ -524,7 +524,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
     </div>
   </div>
 
-  <div class="tagline">Digitální nástroje stavebního týmu</div>
+  <div class="tagline">AI ve stavebnictví</div>
 
   <button class="auth-trigger" id="auth-trigger-btn" onclick="openAuth()">
     <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
