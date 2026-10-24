@@ -62,13 +62,13 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   width:260px;
   display:flex; flex-direction:column;
   border-radius:6px; overflow:hidden;
-  box-shadow:0 8px 48px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08);
+  box-shadow:0 12px 64px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.25), 0 0 0 4px rgba(0,0,0,0.5), 0 0 40px rgba(0,0,0,0.6);
   flex-shrink:0;
 }
 .flag-black { height:65px; background:#000; }
 .flag-olive {
   height:65px; background:#4A5340;
-  display:flex; align-items:center; justify-content:center;
+  display:flex; align-items:center; justify-content:center; overflow:hidden;
 }
 .flag-white { height:65px; background:#fff; }
 .flag-gold {
@@ -76,8 +76,8 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   display:flex; align-items:center; justify-content:center;
 }
 .flag-logo-img {
-  width:146px; object-fit:contain;
-  filter:invert(70%) sepia(50%) saturate(500%) hue-rotate(1deg) brightness(95%) contrast(85%);
+  width:auto; height:75%; max-width:65%; object-fit:contain;
+  filter:brightness(0) invert(1);
 }
 .flag-platform {
   font-family:'Montserrat','Rajdhani',sans-serif;
@@ -91,10 +91,10 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
   border-radius:4px; overflow:hidden; margin-bottom:14px;
 }
 .auth-flag .flag-black { height:28px; }
-.auth-flag .flag-olive { height:28px; }
+.auth-flag .flag-olive { height:28px; overflow:hidden; }
 .auth-flag .flag-white { height:28px; }
 .auth-flag .flag-gold  { height:28px; }
-.auth-flag .flag-logo-img { width:62px; }
+.auth-flag .flag-logo-img { width:auto; height:75%; max-width:65%; }
 .auth-flag .flag-platform { font-size:11px; letter-spacing:2px; }
 
 /* ── TAGLINE ── */
@@ -448,6 +448,61 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 @keyframes fadeDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
 @keyframes fadeUp   { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 @keyframes cardIn   { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── PER-CARD COLOUR SCHEMES ── */
+/* Board — dark forest/olive */
+.card-board { background:rgba(22,30,17,0.88); border-color:rgba(110,140,80,0.38); }
+.card-board .card-name { color:#b8d09a; }
+.card-board .card-num  { color:rgba(180,210,140,0.22); }
+.card-board .card-icon { border-color:rgba(180,215,140,0.42); color:rgba(190,220,150,0.88); }
+.card-board:hover { background:rgba(32,44,22,0.95); border-color:rgba(140,180,95,0.58); box-shadow:0 8px 40px rgba(0,0,0,0.6),0 0 24px rgba(90,130,55,0.22); }
+.card-board:hover .card-icon { border-color:rgba(190,230,145,0.85); background:rgba(160,210,100,0.12); box-shadow:0 0 20px rgba(140,195,90,0.3); color:#c8dea8; }
+.card-board:hover .card-name { color:#cae4a8; text-shadow:0 0 22px rgba(160,210,100,0.4); }
+.card-board:hover .card-link { color:#b8d09a; }
+.card-board::after { background:linear-gradient(90deg,rgba(160,210,100,0.3),rgba(180,230,110,0.55),rgba(160,210,100,0.3)); background-size:200% 100%; }
+
+/* Plans — white/bright */
+.card-plans { background:rgba(255,255,255,0.13); border-color:rgba(255,255,255,0.48); }
+.card-plans .card-name { color:#ffffff; }
+.card-plans .card-num  { color:rgba(255,255,255,0.28); }
+.card-plans .card-icon { border-color:rgba(255,255,255,0.55); color:rgba(255,255,255,0.9); }
+.card-plans:hover { background:rgba(255,255,255,0.24); border-color:rgba(255,255,255,0.82); box-shadow:0 8px 40px rgba(0,0,0,0.3),0 0 24px rgba(255,255,255,0.14); }
+.card-plans:hover .card-icon { border-color:#fff; background:rgba(255,255,255,0.18); box-shadow:0 0 20px rgba(255,255,255,0.32); color:#fff; }
+.card-plans:hover .card-name { text-shadow:0 0 22px rgba(255,255,255,0.55); }
+.card-plans:hover .card-link { color:#fff; }
+.card-plans::after { background:linear-gradient(90deg,rgba(255,255,255,0.5),rgba(255,255,255,0.9),rgba(255,255,255,0.5)); background-size:200% 100%; }
+
+/* Time — gold/amber */
+.card-time { background:rgba(201,168,76,0.13); border-color:rgba(201,168,76,0.48); }
+.card-time .card-name { color:#c9a84c; }
+.card-time .card-num  { color:rgba(201,168,76,0.28); }
+.card-time .card-icon { border-color:rgba(201,168,76,0.52); color:var(--gold); }
+.card-time:hover { background:rgba(201,168,76,0.24); border-color:rgba(201,168,76,0.78); box-shadow:0 8px 40px rgba(0,0,0,0.42),0 0 28px rgba(201,168,76,0.3); }
+.card-time:hover .card-icon { border-color:var(--gold); background:rgba(201,168,76,0.2); box-shadow:0 0 20px rgba(201,168,76,0.48); color:#dfc06a; }
+.card-time:hover .card-name { color:#dfc06a; text-shadow:0 0 22px rgba(201,168,76,0.58); }
+.card-time:hover .card-link { color:var(--gold); }
+
+/* Organs — light/silver-olive */
+.card-organs { background:rgba(205,218,198,0.09); border-color:rgba(205,218,198,0.32); }
+.card-organs .card-name { color:rgba(218,232,208,0.95); }
+.card-organs .card-num  { color:rgba(205,220,192,0.22); }
+.card-organs .card-icon { border-color:rgba(205,222,192,0.48); color:rgba(210,226,196,0.88); }
+.card-organs:hover { background:rgba(205,218,198,0.2); border-color:rgba(205,222,192,0.62); box-shadow:0 8px 40px rgba(0,0,0,0.4),0 0 24px rgba(165,200,140,0.18); }
+.card-organs:hover .card-icon { border-color:rgba(210,232,192,0.88); background:rgba(190,220,165,0.14); box-shadow:0 0 20px rgba(170,210,140,0.28); }
+.card-organs:hover .card-name { text-shadow:0 0 22px rgba(195,225,168,0.42); }
+.card-organs:hover .card-link { color:rgba(210,232,192,0.9); }
+.card-organs::after { background:linear-gradient(90deg,rgba(195,222,170,0.35),rgba(215,238,188,0.58),rgba(195,222,170,0.35)); background-size:200% 100%; }
+
+/* CAD — black with gold */
+.card-cad { background:rgba(6,6,6,0.82); border-color:rgba(201,168,76,0.32); }
+.card-cad .card-name { color:#c9a84c; }
+.card-cad .card-num  { color:rgba(201,168,76,0.26); }
+.card-cad .card-icon { border-color:rgba(201,168,76,0.44); color:var(--gold); }
+.card-cad:hover { background:rgba(16,16,16,0.94); border-color:rgba(201,168,76,0.68); box-shadow:0 8px 40px rgba(0,0,0,0.75),0 0 28px rgba(201,168,76,0.24); }
+.card-cad:hover .card-icon { border-color:var(--gold); background:rgba(201,168,76,0.16); box-shadow:0 0 20px rgba(201,168,76,0.42); color:#dfc06a; }
+.card-cad:hover .card-name { text-shadow:0 0 22px rgba(201,168,76,0.58); }
+.card-cad:hover .card-link { color:var(--gold); }
+.card-cad::after { background:linear-gradient(90deg,rgba(201,168,76,0.4),rgba(201,168,76,0.78),rgba(201,168,76,0.4)); background-size:200% 100%; }
 </style>
 </head>
 <body>
@@ -545,7 +600,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
 
   <div class="cards">
 
-    <a class="card" href="https://board.besix.cz">
+    <a class="card card-board" href="https://board.besix.cz">
       <div class="card-bg"><svg viewBox="0 0 110 100"><rect x="8" y="6" width="38" height="66" rx="6" fill="rgba(255,255,255,1)"/><rect x="55" y="6" width="38" height="38" rx="6" fill="rgba(255,255,255,1)"/><rect x="55" y="52" width="38" height="38" rx="6" fill="rgba(255,255,255,.5)"/></svg></div><div class="scan"></div>
       <div class="card-num">01</div>
       <div class="card-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="15" rx="1.5" fill="currentColor"/><rect x="14" y="3" width="7" height="9" rx="1.5" fill="currentColor"/><rect x="14" y="14.5" width="7" height="6.5" rx="1.5" fill="currentColor" opacity=".5"/></svg></div>
@@ -555,7 +610,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
       <div class="card-link">Vstoupit <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
     </a>
 
-    <a class="card" href="https://plans.besix.cz">
+    <a class="card card-plans" href="https://plans.besix.cz">
       <div class="card-bg"><svg viewBox="0 0 100 100"><path fill-rule="evenodd" clip-rule="evenodd" d="M50 5C34.5 5 22 17.5 22 33c0 21.5 28 62 28 62s28-40.5 28-62C78 17.5 65.5 5 50 5zm0 37a13 13 0 1 1 0-26 13 13 0 0 1 0 26z" fill="rgba(255,255,255,1)"/></svg></div><div class="scan"></div>
       <div class="card-num">02</div>
       <div class="card-icon"><svg viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" fill="currentColor"/></svg></div>
@@ -565,7 +620,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
       <div class="card-link">Vstoupit <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
     </a>
 
-    <a class="card" href="https://time.besix.cz">
+    <a class="card card-time" href="https://time.besix.cz">
       <div class="card-bg"><svg viewBox="0 0 100 100"><path fill-rule="evenodd" clip-rule="evenodd" d="M50 5C25.1 5 5 25.1 5 50s20.1 45 45 45 45-20.1 45-45S74.9 5 50 5zm0 78c-18.2 0-33-14.8-33-33s14.8-33 33-33 33 14.8 33 33-14.8 33-33 33z" fill="rgba(255,255,255,1)"/><rect x="46" y="19" width="8" height="33" rx="4" fill="rgba(255,255,255,1)"/><rect x="50" y="46" width="24" height="8" rx="4" fill="rgba(255,255,255,1)"/><circle cx="50" cy="50" r="5" fill="rgba(255,255,255,1)"/></svg></div><div class="scan"></div>
       <div class="card-num">03</div>
       <div class="card-icon"><svg viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="currentColor"/><path d="M12.75 7.5h-1.5V12.5h4.5V11h-3z" fill="currentColor"/></svg></div>
@@ -575,7 +630,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
       <div class="card-link">Vstoupit <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
     </a>
 
-    <a class="card" href="https://organs.besix.cz">
+    <a class="card card-organs" href="https://organs.besix.cz">
       <div class="card-bg"><svg viewBox="0 0 100 100"><rect x="35" y="5" width="30" height="18" rx="4" fill="rgba(255,255,255,1)"/><rect x="47" y="23" width="6" height="14" fill="rgba(255,255,255,1)"/><rect x="20" y="37" width="60" height="5" fill="rgba(255,255,255,1)"/><rect x="20" y="37" width="5" height="18" fill="rgba(255,255,255,1)"/><rect x="75" y="37" width="5" height="18" fill="rgba(255,255,255,1)"/><rect x="8" y="55" width="27" height="18" rx="4" fill="rgba(255,255,255,1)"/><rect x="65" y="55" width="27" height="18" rx="4" fill="rgba(255,255,255,1)"/></svg></div><div class="scan"></div>
       <div class="card-num">04</div>
       <div class="card-icon"><svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="5" rx="1" fill="currentColor"/><rect x="2" y="17" width="6" height="5" rx="1" fill="currentColor"/><rect x="16" y="17" width="6" height="5" rx="1" fill="currentColor"/><rect x="11.25" y="7" width="1.5" height="4" rx=".75" fill="currentColor"/><rect x="4.5" y="11" width="15" height="1.5" rx=".75" fill="currentColor"/><rect x="4.5" y="11" width="1.5" height="6" rx=".75" fill="currentColor"/><rect x="18" y="11" width="1.5" height="6" rx=".75" fill="currentColor"/></svg></div>
@@ -585,7 +640,7 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; background:var(--o
       <div class="card-link">Vstoupit <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
     </a>
 
-    <a class="card" href="https://cad.besix.cz">
+    <a class="card card-cad" href="https://cad.besix.cz">
       <div class="card-bg"><svg viewBox="0 0 100 100"><circle cx="50" cy="12" r="10" fill="rgba(255,255,255,1)"/><path d="M43 21 L20 96 L35 96 L50 32 L65 96 L80 96 L57 21Z" fill="rgba(255,255,255,1)"/><rect x="29" y="57" width="42" height="7" rx="3.5" fill="rgba(255,255,255,1)"/></svg></div><div class="scan"></div>
       <div class="card-num">05</div>
       <div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2.5" fill="currentColor"/><path d="M10.3 6.5 L6 22 L8.5 22 L12 9.5 L15.5 22 L18 22 L13.7 6.5Z" fill="currentColor"/><rect x="7.5" y="13.5" width="9" height="1.5" rx=".75" fill="currentColor"/></svg></div>
